@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Post-install hook: register the scheduled synchronization task according to
  * the current settings. Idempotent and safe to run on every upgrade.
