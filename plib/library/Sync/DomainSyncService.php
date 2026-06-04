@@ -17,6 +17,9 @@ class Modules_Uptimeify_Sync_DomainSyncService
     /** @var list<array<string, mixed>>|null */
     private ?array $customersCache = null;
 
+    /** @var array<string, bool> Server IPs already ensured per customer this run. */
+    private array $ipEnsured = [];
+
     public function __construct(
         private readonly Modules_Uptimeify_Api_Client $api,
         private readonly Modules_Uptimeify_Plesk_DomainRepository $domains,
@@ -238,15 +241,37 @@ class Modules_Uptimeify_Sync_DomainSyncService
         $websitePublicId = (string) ($website['publicId'] ?? $website['id'] ?? '');
         Modules_Uptimeify_Settings::setMappingFor((string) $row['domain'], $websitePublicId, $customerPublicId, $packageType);
 
-        if (Modules_Uptimeify_Settings::isDnsblEnabled() && (string) $row['ip'] !== '') {
-            try {
-                $this->api->createCustomerIp($customerPublicId, (string) $row['ip'], 'Plesk Server IP');
-            } catch (Modules_Uptimeify_Api_Exception_ApiException) {
-                // Best-effort: never block the website on a DNSBL/quota hiccup.
-            }
+        if (Modules_Uptimeify_Settings::isDnsblEnabled()) {
+            $this->ensureServerIp($customerPublicId, (string) $row['ip']);
         }
 
         return $website;
+    }
+
+    /**
+     * Register the server IP for the customer's DNSBL monitoring — once per
+     * (customer, IP). Every customer hosted on the server gets its own entry so
+     * each one is notified about blacklisting; duplicates are deduplicated by the
+     * API ("IP already exists", 409) and skipped within a run.
+     */
+    private function ensureServerIp(string $customerPublicId, string $ip): void
+    {
+        if ($ip === '') {
+            return;
+        }
+
+        $key = $customerPublicId . '|' . $ip;
+        if (isset($this->ipEnsured[$key])) {
+            return;
+        }
+        $this->ipEnsured[$key] = true;
+
+        try {
+            $this->api->createCustomerIp($customerPublicId, $ip, 'Plesk Server IP');
+        } catch (Modules_Uptimeify_Api_Exception_ApiException) {
+            // 409 = already registered for this customer (fine); other errors are
+            // best-effort and must never block the website creation.
+        }
     }
 
     /**
