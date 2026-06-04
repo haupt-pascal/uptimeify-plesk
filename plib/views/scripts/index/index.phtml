@@ -100,11 +100,7 @@ $statusLabels = [
                         <span class="hint">
                             <?= $this->escape($row['preview'] ? $this->lmsg('dashboard.previewBadge') : $this->lmsg('dashboard.ignoredBadge')) ?>
                         </span>
-                        <button type="button" class="btn uptimeify-enable-btn"
-                                data-domain="<?= $this->escape($row['domain']) ?>">
-                            <?= $this->escape($this->lmsg('dashboard.enable')) ?>
-                        </button>
-                        <?php if ($row['ignored']): ?>
+                        <?php if ($row['ignored'] && !$row['preview']): ?>
                             <button type="button" class="btn uptimeify-unignore-btn"
                                     data-domain="<?= $this->escape($row['domain']) ?>">
                                 <?= $this->escape($this->lmsg('dashboard.unignore')) ?>

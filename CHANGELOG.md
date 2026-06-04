@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-06-04
+
+### Changed
+- Preview/ignored domains no longer show an "Enable" button. Preview domains
+  (`*.plesk.page`) show only the tag; manually ignored domains show only
+  "Stop ignoring".
+
 ## [1.4.0] - 2026-06-04
 
 ### Added
@@ -216,7 +223,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.1...v1.3.2
