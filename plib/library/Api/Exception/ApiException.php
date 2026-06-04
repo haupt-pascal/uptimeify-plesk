@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Base exception for all uptimeify API errors.
  */

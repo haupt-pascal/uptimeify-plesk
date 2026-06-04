@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main admin controller: connection banner, domain dashboard and sync actions.
  */

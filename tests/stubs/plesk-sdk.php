@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Minimal stubs of the Plesk Extension SDK classes used by the library layer.
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Post-install hook: register the hourly synchronization task with the Plesk
  * scheduler. Idempotent — removes any previously registered task first.

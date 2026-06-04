@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Reads the local Plesk domains the admin can monitor.
  *

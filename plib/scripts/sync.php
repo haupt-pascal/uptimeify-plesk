@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CLI entry point for the scheduled (cron) synchronization.
  *

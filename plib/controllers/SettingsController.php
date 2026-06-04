@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Settings tab: API token, connection handshake and sync defaults.
  */

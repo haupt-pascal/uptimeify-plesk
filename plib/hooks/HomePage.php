@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plesk admin Home page widget.
  *

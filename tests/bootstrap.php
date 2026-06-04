@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PHPUnit bootstrap: load Composer autoload, the Plesk SDK stubs and the
  * extension's library classes (which use the underscore "Modules_*" naming

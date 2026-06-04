@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Persistent extension settings (admin-level, stored via pm_Settings).
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Thin, typed HTTP client for the uptimeify.io REST API.
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Core synchronization logic between local Plesk domains and uptimeify monitors.
  *

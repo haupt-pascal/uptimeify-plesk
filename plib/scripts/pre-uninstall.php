@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pre-uninstall hook: remove the scheduled sync task. Local Plesk settings are
  * dropped by Plesk automatically; remote uptimeify monitors are left untouched.

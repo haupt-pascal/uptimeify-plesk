@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Thrown on HTTP 401 — the API token is missing, malformed or revoked.
  */
