@@ -29,8 +29,8 @@ class DomainSyncServiceTest extends TestCase
 
         $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
         $domains->method('all')->willReturn([
-            ['name' => 'acme.example', 'asciiName' => 'acme.example', 'displayUrl' => 'https://acme.example', 'ip' => '203.0.113.10'],
-            ['name' => 'unmonitored.example', 'asciiName' => 'unmonitored.example', 'displayUrl' => 'https://unmonitored.example', 'ip' => ''],
+            ['name' => 'acme.example', 'displayName' => 'acme.example', 'displayUrl' => 'https://acme.example', 'ip' => '203.0.113.10'],
+            ['name' => 'unmonitored.example', 'displayName' => 'unmonitored.example', 'displayUrl' => 'https://unmonitored.example', 'ip' => ''],
         ]);
 
         $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);

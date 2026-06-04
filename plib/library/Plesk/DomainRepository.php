@@ -12,7 +12,7 @@ declare(strict_types=1);
 class Modules_Uptimeify_Plesk_DomainRepository
 {
     /**
-     * @return list<array{name:string, asciiName:string, displayUrl:string, ip:string}>
+     * @return list<array{name:string, displayName:string, displayUrl:string, ip:string}>
      */
     public function all(): array
     {
@@ -24,13 +24,13 @@ class Modules_Uptimeify_Plesk_DomainRepository
                 continue;
             }
 
-            $name = $domain->getName();
+            $name = $domain->getName(); // already ASCII / punycode
 
             $domains[] = [
-                'name'       => $name,
-                'asciiName'  => $domain->getAsciiName(),
-                'displayUrl' => $this->toUrl($name),
-                'ip'         => $this->resolveIp($domain),
+                'name'        => $name,
+                'displayName' => $domain->getDisplayName(),
+                'displayUrl'  => 'https://' . $name,
+                'ip'          => $this->resolveIp($domain),
             ];
         }
 
@@ -39,19 +39,24 @@ class Modules_Uptimeify_Plesk_DomainRepository
         return $domains;
     }
 
-    private function toUrl(string $name): string
-    {
-        return 'https://' . $name;
-    }
-
     private function resolveIp(pm_Domain $domain): string
     {
         try {
             $addresses = $domain->getIpAddresses();
-            $first     = is_array($addresses) ? reset($addresses) : '';
-            return is_string($first) ? $first : '';
         } catch (Throwable) {
             return '';
         }
+
+        foreach ((array) $addresses as $key => $value) {
+            // getIpAddresses() may return [ip => type] or [index => ip].
+            if (is_string($value) && filter_var($value, FILTER_VALIDATE_IP) !== false) {
+                return $value;
+            }
+            if (is_string($key) && filter_var($key, FILTER_VALIDATE_IP) !== false) {
+                return $key;
+            }
+        }
+
+        return '';
     }
 }

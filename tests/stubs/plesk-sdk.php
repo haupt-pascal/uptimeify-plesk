@@ -62,13 +62,13 @@ if (!class_exists('pm_Domain')) {
             return '';
         }
 
-        public function getAsciiName(): string
+        public function getDisplayName(): string
         {
             return '';
         }
 
-        /** @return list<string> */
-        public function getIpAddresses(): array
+        /** @return array<int|string, string> */
+        public function getIpAddresses(bool $public = true): array
         {
             return [];
         }

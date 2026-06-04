@@ -6,6 +6,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-06-04
+
+### Fixed
+- **Fatal `Call to undefined method pm_Domain::getAsciiName()`** when opening the
+  dashboard: use the real `pm_Domain` API (`getName()` already returns the ASCII
+  name, plus `getDisplayName()`), and harden server-IP detection. Corrected the
+  test SDK stub so PHPStan catches such mismatches in future.
+
 ## [1.0.5] - 2026-06-04
 
 ### Changed
@@ -73,7 +81,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.2...v1.0.3
