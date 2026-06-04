@@ -144,6 +144,34 @@ class IndexController extends pm_Controller_Action
     }
 
     /**
+     * AJAX: exclude a domain from sync. Param: domain.
+     */
+    public function ignoreAction(): void
+    {
+        $this->_forbidGet();
+        $domain = (string) $this->_getParam('domain');
+        if ($domain !== '') {
+            Modules_Uptimeify_Settings::addIgnored($domain);
+            $this->_status->addMessage('info', $this->lmsg('dashboard.ignoredMsg', ['domain' => $domain]));
+        }
+        $this->_helper->json(['reload' => true]);
+    }
+
+    /**
+     * AJAX: re-include a previously ignored domain. Param: domain.
+     */
+    public function unignoreAction(): void
+    {
+        $this->_forbidGet();
+        $domain = (string) $this->_getParam('domain');
+        if ($domain !== '') {
+            Modules_Uptimeify_Settings::removeIgnored($domain);
+            $this->_status->addMessage('info', $this->lmsg('dashboard.unignoredMsg', ['domain' => $domain]));
+        }
+        $this->_helper->json(['reload' => true]);
+    }
+
+    /**
      * @param array{customersCreated:int, websitesCreated:int, skipped:int, errors:list<string>} $summary
      */
     private function reportSummary(array $summary): void

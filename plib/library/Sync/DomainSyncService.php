@@ -47,20 +47,27 @@ class Modules_Uptimeify_Sync_DomainSyncService
         $rows     = [];
 
         foreach ($this->domains->all() as $domain) {
+            $name     = (string) $domain['name'];
             $monitor  = $monitors[$this->normalizeUrl($domain['displayUrl'])] ?? null;
-            $map      = $mapping[$domain['name']] ?? null;
+            $map      = $mapping[$name] ?? null;
             $existing = $monitor === null
                 ? $this->matchCustomer((int) $domain['clientId'], (string) $domain['clientName'], (string) $domain['clientEmail'])
                 : null;
 
+            $ignored = Modules_Uptimeify_Settings::isIgnored($name);
+            $preview = self::isPreviewDomain($name);
+
             $rows[] = [
-                'domain'           => $domain['name'],
+                'domain'           => $name,
                 'url'              => $domain['displayUrl'],
                 'ip'               => $domain['ip'],
                 'clientId'         => $domain['clientId'],
                 'ownerName'        => $domain['clientName'] !== '' ? $domain['clientName'] : $domain['clientEmail'],
                 'ownerEmail'       => $domain['clientEmail'],
                 'monitored'        => $monitor !== null,
+                'ignored'          => $ignored,
+                'preview'          => $preview,
+                'skip'             => $ignored || $preview,
                 'websitePublicId'  => $monitor['publicId'] ?? ($map['websitePublicId'] ?? null),
                 'status'           => $monitor['status'] ?? null,
                 'monitoringType'   => $monitor['monitoringType'] ?? null,
@@ -70,6 +77,15 @@ class Modules_Uptimeify_Sync_DomainSyncService
         }
 
         return $rows;
+    }
+
+    /**
+     * Plesk preview/temporary domains (e.g. *.plesk.page) are not real public
+     * domains and are excluded from automatic sync by default.
+     */
+    public static function isPreviewDomain(string $name): bool
+    {
+        return str_ends_with(strtolower($name), '.plesk.page');
     }
 
     /**
@@ -183,7 +199,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
         $packageType = Modules_Uptimeify_Settings::getDefaultPackageType();
 
         foreach ($rows as $row) {
-            if ($row['monitored']) {
+            if ($row['monitored'] || !empty($row['skip'])) {
                 $summary['skipped']++;
                 continue;
             }

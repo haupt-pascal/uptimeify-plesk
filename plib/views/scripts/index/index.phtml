@@ -53,9 +53,9 @@ $statusLabels = [
         </thead>
         <tbody>
         <?php foreach ($rows as $row): ?>
-            <tr class="uptimeify-row" data-domain="<?= $this->escape($row['domain']) ?>">
+            <tr class="uptimeify-row<?= !empty($row['skip']) ? ' uptimeify-skip' : '' ?>" data-domain="<?= $this->escape($row['domain']) ?>">
                 <td>
-                    <?php if (!$row['monitored']): ?>
+                    <?php if (!$row['monitored'] && empty($row['skip'])): ?>
                         <input type="checkbox" class="uptimeify-select" data-domain="<?= $this->escape($row['domain']) ?>">
                     <?php endif; ?>
                 </td>
@@ -64,7 +64,7 @@ $statusLabels = [
                 <td>
                     <?php if (!empty($row['customerName'])): ?>
                         <?= $this->escape($row['customerName']) ?>
-                    <?php elseif (!$row['monitored']): ?>
+                    <?php elseif (!$row['monitored'] && empty($row['skip'])): ?>
                         <span class="hint">&rarr; <?= $this->escape($row['ownerName'] ?: $row['domain']) ?></span>
                     <?php else: ?>
                         —
@@ -96,6 +96,20 @@ $statusLabels = [
                                 <?= $this->escape($this->lmsg('dashboard.cancel')) ?>
                             </button>
                         </span>
+                    <?php elseif (!empty($row['skip'])): ?>
+                        <span class="hint">
+                            <?= $this->escape($row['preview'] ? $this->lmsg('dashboard.previewBadge') : $this->lmsg('dashboard.ignoredBadge')) ?>
+                        </span>
+                        <button type="button" class="btn uptimeify-enable-btn"
+                                data-domain="<?= $this->escape($row['domain']) ?>">
+                            <?= $this->escape($this->lmsg('dashboard.enable')) ?>
+                        </button>
+                        <?php if ($row['ignored']): ?>
+                            <button type="button" class="btn uptimeify-unignore-btn"
+                                    data-domain="<?= $this->escape($row['domain']) ?>">
+                                <?= $this->escape($this->lmsg('dashboard.unignore')) ?>
+                            </button>
+                        <?php endif; ?>
                     <?php else: ?>
                         <span class="uptimeify-enable">
                             <select class="uptimeify-customer" title="<?= $this->escape($this->lmsg('dashboard.colCustomer')) ?>">
@@ -123,6 +137,10 @@ $statusLabels = [
                                     data-domain="<?= $this->escape($row['domain']) ?>">
                                 <?= $this->escape($this->lmsg('dashboard.enable')) ?>
                             </button>
+                            <button type="button" class="btn uptimeify-ignore-btn"
+                                    data-domain="<?= $this->escape($row['domain']) ?>">
+                                <?= $this->escape($this->lmsg('dashboard.ignore')) ?>
+                            </button>
                         </span>
                     <?php endif; ?>
                 </td>
@@ -140,6 +158,8 @@ $statusLabels = [
     window.UPTIMEIFY = {
         enableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'enable')) ?>,
         disableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'disable')) ?>,
+        ignoreUrl: <?= json_encode(pm_Context::getActionUrl('index', 'ignore')) ?>,
+        unignoreUrl: <?= json_encode(pm_Context::getActionUrl('index', 'unignore')) ?>,
         syncSelectedUrl: <?= json_encode(pm_Context::getActionUrl('index', 'sync-selected')) ?>,
         i18n: {
             selectFirst: <?= json_encode($this->lmsg('dashboard.selectFirst')) ?>

@@ -24,6 +24,7 @@ class Modules_Uptimeify_Settings
     public const KEY_DNSBL_ENABLED   = 'dnsblEnabled';
     public const KEY_MAPPING         = 'domainMapping';
     public const KEY_CLIENT_MAP      = 'clientCustomerMap';
+    public const KEY_IGNORED         = 'ignoredDomains';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
     public const KEY_SYNC_INTERVAL   = 'syncInterval';
 
@@ -246,5 +247,56 @@ class Modules_Uptimeify_Settings
         $map = self::getClientMap();
         $map[(string) $clientId] = $customerPublicId;
         pm_Settings::set(self::KEY_CLIENT_MAP, json_encode($map, JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Domains the admin has chosen to exclude from sync.
+     *
+     * @return array<string, bool>
+     */
+    public static function getIgnoredSet(): array
+    {
+        $raw = (string) pm_Settings::get(self::KEY_IGNORED, '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $set = [];
+        foreach ($decoded as $domain) {
+            if (is_string($domain) && $domain !== '') {
+                $set[$domain] = true;
+            }
+        }
+        return $set;
+    }
+
+    public static function isIgnored(string $domain): bool
+    {
+        return isset(self::getIgnoredSet()[$domain]);
+    }
+
+    public static function addIgnored(string $domain): void
+    {
+        $set = self::getIgnoredSet();
+        $set[$domain] = true;
+        self::saveIgnored($set);
+    }
+
+    public static function removeIgnored(string $domain): void
+    {
+        $set = self::getIgnoredSet();
+        unset($set[$domain]);
+        self::saveIgnored($set);
+    }
+
+    /**
+     * @param array<string, bool> $set
+     */
+    private static function saveIgnored(array $set): void
+    {
+        pm_Settings::set(self::KEY_IGNORED, json_encode(array_keys($set), JSON_THROW_ON_ERROR));
     }
 }

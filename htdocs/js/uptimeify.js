@@ -70,8 +70,8 @@
             btn.addEventListener('click', function () {
                 var wrap = btn.closest('.uptimeify-enable');
                 var domain = btn.getAttribute('data-domain');
-                var customer = wrap.querySelector('.uptimeify-customer').value || 'auto';
-                var pkg = wrap.querySelector('.uptimeify-package').value;
+                var customer = wrap ? (wrap.querySelector('.uptimeify-customer').value || 'auto') : 'auto';
+                var pkg = wrap ? wrap.querySelector('.uptimeify-package').value : '';
                 btn.disabled = true;
                 post(window.UPTIMEIFY.enableUrl, {
                     domain: domain,
@@ -133,6 +133,26 @@
                 });
             });
         });
+    }
+
+    function ignoreHandler(selector, urlKey) {
+        document.querySelectorAll(selector).forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                btn.disabled = true;
+                post(window.UPTIMEIFY[urlKey], { domain: btn.getAttribute('data-domain') })
+                    .then(function (res) {
+                        if (!handled(res)) { btn.disabled = false; banner((res && res.message) || 'Request failed.'); }
+                    }).catch(function () {
+                        btn.disabled = false;
+                        banner('Network error.');
+                    });
+            });
+        });
+    }
+
+    function bindIgnore() {
+        ignoreHandler('.uptimeify-ignore-btn', 'ignoreUrl');
+        ignoreHandler('.uptimeify-unignore-btn', 'unignoreUrl');
     }
 
     function selectedDomains() {
@@ -199,6 +219,7 @@
         bindFilter();
         bindEnable();
         bindToggleOff();
+        bindIgnore();
         bindSelectAll();
         bindSyncSelected();
         bindSyncAll();
