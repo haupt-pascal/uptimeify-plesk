@@ -11,6 +11,7 @@ $messages = [
     'dashboard.notConnected'  => 'Connect your uptimeify.io API token to get started.',
     'dashboard.syncAll'       => 'Mirror & sync all',
     'dashboard.syncAllHint'   => 'Creates a uptimeify customer per Plesk customer (if missing) and a monitor for every domain.',
+    'dashboard.openSettings'  => 'Settings',
     'dashboard.colOwner'      => 'Plesk customer',
     'dashboard.autoCustomer'  => 'Auto: %%owner%%',
     'dashboard.filter'        => 'Filter domains…',

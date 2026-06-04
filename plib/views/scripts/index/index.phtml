@@ -13,6 +13,9 @@ $loadError = $this->loadError ?? null;
                 data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync')) ?>">
             <?= $this->escape($this->lmsg('dashboard.syncAll')) ?>
         </button>
+        <a class="btn" href="<?= $this->escape(pm_Context::getActionUrl('settings', 'index')) ?>">
+            <?= $this->escape($this->lmsg('dashboard.openSettings')) ?>
+        </a>
         <span class="hint"><?= $this->escape($this->lmsg('dashboard.syncAllHint')) ?></span>
     </p>
 
@@ -40,7 +43,15 @@ $loadError = $this->loadError ?? null;
             <tr class="uptimeify-row" data-domain="<?= $this->escape($row['domain']) ?>">
                 <td><?= $this->escape($row['domain']) ?></td>
                 <td><?= $this->escape($row['ownerName'] ?: '—') ?></td>
-                <td><?= $this->escape($row['customerName'] ?? '—') ?></td>
+                <td>
+                    <?php if (!empty($row['customerName'])): ?>
+                        <?= $this->escape($row['customerName']) ?>
+                    <?php elseif (!$row['monitored']): ?>
+                        <span class="hint">&rarr; <?= $this->escape($row['ownerName'] ?: $row['domain']) ?></span>
+                    <?php else: ?>
+                        —
+                    <?php endif; ?>
+                </td>
                 <td><?= $this->escape($row['status'] ?? '—') ?></td>
                 <td>
                     <?php if ($row['monitored']): ?>

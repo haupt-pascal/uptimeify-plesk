@@ -18,9 +18,9 @@ class SettingsController extends pm_Controller_Action
 
         $this->view->pageTitle = $this->lmsg('pageTitle');
 
-        $this->_tabs = [
+        $this->view->tabs = [
             ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],
-            ['title' => $this->lmsg('tabs.settings'), 'action' => 'index'],
+            ['title' => $this->lmsg('tabs.settings'), 'action' => 'index', 'controller' => 'settings'],
         ];
     }
 

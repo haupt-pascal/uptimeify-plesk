@@ -15,8 +15,8 @@ class IndexController extends pm_Controller_Action
         $this->view->pageTitle = $this->lmsg('pageTitle');
         $this->view->headScript()->appendFile(pm_Context::getBaseUrl() . 'js/uptimeify.js');
 
-        $this->_tabs = [
-            ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index'],
+        $this->view->tabs = [
+            ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],
             ['title' => $this->lmsg('tabs.settings'), 'action' => 'index', 'controller' => 'settings'],
         ];
     }

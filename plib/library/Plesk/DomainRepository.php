@@ -56,17 +56,44 @@ class Modules_Uptimeify_Plesk_DomainRepository
     {
         try {
             $client = $domain->getClient();
-            $name   = trim((string) $client->getProperty('company'))
-                ?: trim((string) $client->getProperty('pname'))
-                ?: $client->getLogin();
-
-            return [
-                'id'    => $client->getId(),
-                'name'  => $name,
-                'email' => trim((string) $client->getProperty('email')),
-            ];
         } catch (Throwable) {
             return ['id' => 0, 'name' => '', 'email' => ''];
+        }
+
+        $login = '';
+        try {
+            $login = $client->getLogin();
+        } catch (Throwable) {
+            // ignore
+        }
+
+        $id = 0;
+        try {
+            $id = $client->getId();
+        } catch (Throwable) {
+            // ignore
+        }
+
+        $name = $this->prop($client, 'company')
+            ?: $this->prop($client, 'pname')
+            ?: $login;
+
+        return [
+            'id'    => $id,
+            'name'  => $name,
+            'email' => $this->prop($client, 'email'),
+        ];
+    }
+
+    /**
+     * Read a client property, tolerating unknown keys / SDK exceptions.
+     */
+    private function prop(pm_Client $client, string $name): string
+    {
+        try {
+            return trim((string) $client->getProperty($name));
+        } catch (Throwable) {
+            return '';
         }
     }
 

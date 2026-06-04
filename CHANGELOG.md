@@ -6,6 +6,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-04
+
+### Fixed
+- **Empty "Plesk customer" column**: reading a missing client property (e.g.
+  `company`) threw and blanked the whole owner. Each property is now read
+  defensively with `pname`/login fallbacks.
+- **No way back to Settings from the dashboard**: tabs now render via
+  `view->tabs`, plus an explicit "Settings" button on the dashboard.
+
+### Changed
+- The "Customer" column now shows the target customer (→ Plesk customer) for
+  unmonitored domains instead of staying blank.
+
 ## [1.2.1] - 2026-06-04
 
 ### Fixed
@@ -142,7 +155,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.0...v1.1.1
