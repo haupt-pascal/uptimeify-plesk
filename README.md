@@ -15,38 +15,42 @@ inside Plesk; the extension only talks to the uptimeify REST API.
 
 ## Features
 
-- **Connect & validate** — store your organization token (`wsm_…`) and resolve
-  the organization via `GET /api/organization`.
-- **Domain dashboard** — searchable table of all local Plesk hosting domains,
-  matched against existing uptimeify monitors by URL.
-- **Per-domain enable** — pick a **customer** and **package** per domain; the
-  extension creates the monitor (`POST /api/websites`) under that customer.
-- **One-click disable** — toggling off deletes the remote monitor
-  (`DELETE /api/websites/:id`).
-- **Scheduled sync** — an hourly Plesk task reconciles domains and can
-  auto-create monitors for new domains under a configurable default
-  customer + package.
+- **Connect & validate** — store your organization token (`wsm_…`); the
+  organization is derived from the token automatically.
+- **Mirror your Plesk customers** — each Plesk customer (client) maps 1:1 to a
+  uptimeify customer. The extension matches existing customers by email or name
+  and auto-creates the rest with your default package.
+- **Domain dashboard** — searchable table of every Plesk hosting domain with its
+  owning Plesk customer and the uptimeify customer it maps to.
+- **Per-domain enable** — one click creates the monitor under the domain owner's
+  customer (auto), or pick a different customer from the dropdown.
+- **Mirror & sync all** — one button provisions every customer + monitor to match
+  your Plesk structure (the agency workload killer).
+- **One-click disable** — removes the remote monitor (`DELETE /api/websites/:id`).
+- **Scheduled sync** — an hourly Plesk task mirrors customers and adds monitors
+  for new domains.
 - **Quota handling** — `403 Active website limit reached` is caught and shown as
-  an upgrade CTA instead of a hard error.
-- **DNSBL add-on (optional)** — also register the server IP for blacklist
-  monitoring (`POST /api/customers/:id/ips`).
+  an upgrade prompt instead of a hard error.
+- **Blacklist (DNSBL)** — optionally register the server IP per customer
+  (`POST /api/customers/:id/ips`); included in the package, bound by its IP quota.
 - **Home widget** — compact "All systems nominal" / "X systems down" panel on
   the Plesk admin home page.
 
-## How packages work (important)
+## How the mirror works (important)
 
-In uptimeify, a **package is assigned to a customer**, not to an individual
-website. A website's limits (max URLs, check interval, …) come from its
-customer's package. Therefore:
+In uptimeify a **package is assigned to a customer**, not to an individual
+website — a website inherits its limits (max URLs, check interval, …) from its
+customer's package. The extension mirrors your Plesk structure accordingly:
 
-| Action in the dashboard            | What the extension does                                                                 |
-| ---------------------------------- | --------------------------------------------------------------------------------------- |
-| Enable a domain under a **new** customer | `POST /api/customers` with the chosen `packageType`, then `POST /api/websites`.    |
-| Enable a domain under an **existing** customer | `POST /api/websites` only. The customer's existing package is **not** changed.  |
-| Change a customer's package        | `PATCH /api/customers/:id` — **affects every website of that customer** (warned in UI). |
+| Step | What the extension does |
+| ---- | ----------------------- |
+| Resolve the domain's Plesk customer | `pm_Domain::getClient()` → name + email. |
+| Find the matching uptimeify customer | by email, then by name (cached as a client→customer map). |
+| If none exists and auto-create is on | `POST /api/customers` with the **default package**. |
+| Create the monitor | `POST /api/websites` under that customer. |
 
-The scheduled auto-create uses the **default customer + default package** set on
-the Settings tab.
+Changing an existing customer's package is left to uptimeify (it would affect all
+that customer's websites), so the extension never changes it implicitly.
 
 ## Architecture
 
@@ -106,15 +110,15 @@ bin/build.sh            # produces dist/uptimeify-<version>.zip
 
 On the **Settings** tab:
 
-| Setting                         | Purpose                                                              |
-| ------------------------------- | ------------------------------------------------------------------- |
-| Organization API token          | Your `wsm_…` token. Validated on save.                              |
-| Default customer / package      | Used by the scheduled sync to auto-create new domains.              |
-| Default monitoring type         | `combined`, `http status` or `ssl check`.                          |
-| Default check interval          | 1–60 minutes (minimum depends on the package).                     |
-| Enable scheduled sync           | Turns on the hourly reconcile task.                                |
-| Auto-create monitors            | Let the scheduled sync add new, unmonitored domains automatically. |
-| Register server IP for DNSBL    | Optional blacklist monitoring (requires the DNSBL add-on).         |
+| Setting                          | Purpose                                                             |
+| -------------------------------- | ------------------------------------------------------------------- |
+| Organization API token           | Your `wsm_…` token. Validated on save.                             |
+| Mirror Plesk customers           | Auto-create a uptimeify customer per Plesk customer.               |
+| Default package for new customers| Package assigned to auto-created customers.                       |
+| Default monitoring type          | `combined`, `http status` or `ssl check`.                         |
+| Default check interval           | 1–60 minutes (minimum depends on the package).                    |
+| Enable scheduled sync            | Hourly job that mirrors customers and adds monitors.              |
+| Monitor server IP (DNSBL)        | Optional blacklist monitoring; included in the package.          |
 
 ## Development
 

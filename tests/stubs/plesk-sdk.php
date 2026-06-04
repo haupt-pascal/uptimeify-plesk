@@ -72,5 +72,30 @@ if (!class_exists('pm_Domain')) {
         {
             return [];
         }
+
+        public function getClient(): pm_Client
+        {
+            return new pm_Client();
+        }
+    }
+}
+
+if (!class_exists('pm_Client')) {
+    class pm_Client
+    {
+        public function getId(): int
+        {
+            return 0;
+        }
+
+        public function getLogin(): string
+        {
+            return '';
+        }
+
+        public function getProperty(string $name): string
+        {
+            return '';
+        }
     }
 }

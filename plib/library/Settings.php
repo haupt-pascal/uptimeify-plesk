@@ -23,6 +23,8 @@ class Modules_Uptimeify_Settings
     public const KEY_MONITORING_TYPE = 'defaultMonitoringType';
     public const KEY_DNSBL_ENABLED   = 'dnsblEnabled';
     public const KEY_MAPPING         = 'domainMapping';
+    public const KEY_CLIENT_MAP      = 'clientCustomerMap';
+    public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
 
     public static function getApiToken(): string
     {
@@ -190,5 +192,44 @@ class Modules_Uptimeify_Settings
     private static function saveMapping(array $mapping): void
     {
         pm_Settings::set(self::KEY_MAPPING, json_encode($mapping, JSON_THROW_ON_ERROR));
+    }
+
+    public static function isAutoCreateCustomersEnabled(): bool
+    {
+        // Default ON: mirroring the Plesk customer base is the core value.
+        return (bool) pm_Settings::get(self::KEY_AUTO_CREATE_CUSTOMERS, '1');
+    }
+
+    public static function setAutoCreateCustomersEnabled(bool $enabled): void
+    {
+        pm_Settings::set(self::KEY_AUTO_CREATE_CUSTOMERS, $enabled ? '1' : '0');
+    }
+
+    /**
+     * Plesk client id -> uptimeify customer public id (1:1 mirror).
+     *
+     * @return array<string, string>
+     */
+    public static function getClientMap(): array
+    {
+        $raw = (string) pm_Settings::get(self::KEY_CLIENT_MAP, '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    public static function getCustomerForClient(int $clientId): ?string
+    {
+        $value = self::getClientMap()[(string) $clientId] ?? null;
+        return ($value === null || $value === '') ? null : (string) $value;
+    }
+
+    public static function setCustomerForClient(int $clientId, string $customerPublicId): void
+    {
+        $map = self::getClientMap();
+        $map[(string) $clientId] = $customerPublicId;
+        pm_Settings::set(self::KEY_CLIENT_MAP, json_encode($map, JSON_THROW_ON_ERROR));
     }
 }

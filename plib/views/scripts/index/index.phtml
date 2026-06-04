@@ -13,6 +13,7 @@ $loadError = $this->loadError ?? null;
                 data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync')) ?>">
             <?= $this->escape($this->lmsg('dashboard.syncAll')) ?>
         </button>
+        <span class="hint"><?= $this->escape($this->lmsg('dashboard.syncAllHint')) ?></span>
     </p>
 
     <?php if ($loadError): ?>
@@ -28,10 +29,9 @@ $loadError = $this->loadError ?? null;
         <thead>
         <tr>
             <th><?= $this->escape($this->lmsg('dashboard.colDomain')) ?></th>
-            <th><?= $this->escape($this->lmsg('dashboard.colType')) ?></th>
-            <th><?= $this->escape($this->lmsg('dashboard.colStatus')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colOwner')) ?></th>
             <th><?= $this->escape($this->lmsg('dashboard.colCustomer')) ?></th>
-            <th><?= $this->escape($this->lmsg('dashboard.colPackage')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colStatus')) ?></th>
             <th><?= $this->escape($this->lmsg('dashboard.colMonitoring')) ?></th>
         </tr>
         </thead>
@@ -39,10 +39,9 @@ $loadError = $this->loadError ?? null;
         <?php foreach ($rows as $row): ?>
             <tr class="uptimeify-row" data-domain="<?= $this->escape($row['domain']) ?>">
                 <td><?= $this->escape($row['domain']) ?></td>
-                <td><?= $this->escape($row['monitoringType'] ?? '—') ?></td>
-                <td><?= $this->escape($row['status'] ?? '—') ?></td>
+                <td><?= $this->escape($row['ownerName'] ?: '—') ?></td>
                 <td><?= $this->escape($row['customerName'] ?? '—') ?></td>
-                <td><?= $this->escape($row['packageType'] ?? '—') ?></td>
+                <td><?= $this->escape($row['status'] ?? '—') ?></td>
                 <td>
                     <?php if ($row['monitored']): ?>
                         <label>
@@ -54,15 +53,18 @@ $loadError = $this->loadError ?? null;
                         </label>
                     <?php else: ?>
                         <span class="uptimeify-enable">
-                            <select class="uptimeify-customer">
-                                <option value=""><?= $this->escape($this->lmsg('dashboard.chooseCustomer')) ?></option>
+                            <select class="uptimeify-customer" title="<?= $this->escape($this->lmsg('dashboard.colCustomer')) ?>">
+                                <option value="auto">
+                                    <?= $this->escape($this->lmsg('dashboard.autoCustomer', ['owner' => $row['ownerName'] ?: $row['domain']])) ?>
+                                </option>
                                 <?php foreach ($customers as $c): ?>
-                                    <option value="<?= $this->escape($c['publicId'] ?? $c['id'] ?? '') ?>">
-                                        <?= $this->escape($c['name'] ?? '') ?>
+                                    <option value="<?= $this->escape($c['publicId']) ?>"
+                                        <?= (($row['customerPublicId'] ?? null) === $c['publicId']) ? 'selected' : '' ?>>
+                                        <?= $this->escape($c['name']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <select class="uptimeify-package">
+                            <select class="uptimeify-package" title="<?= $this->escape($this->lmsg('dashboard.choosePackage')) ?>">
                                 <option value=""><?= $this->escape($this->lmsg('dashboard.choosePackage')) ?></option>
                                 <?php foreach ($packages as $p): ?>
                                     <option value="<?= $this->escape($p['packageType'] ?? '') ?>">

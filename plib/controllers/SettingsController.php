@@ -87,10 +87,9 @@ class SettingsController extends pm_Controller_Action
 
     private function saveDefaults(pm_Form_Simple $form): void
     {
+        Modules_Uptimeify_Settings::setAutoCreateCustomersEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE_CUSTOMERS));
         Modules_Uptimeify_Settings::setAutoSyncEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_SYNC));
-        Modules_Uptimeify_Settings::setAutoCreateEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE));
         Modules_Uptimeify_Settings::setDnsblEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED));
-        Modules_Uptimeify_Settings::setDefaultCustomerPublicId((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER));
         Modules_Uptimeify_Settings::setDefaultPackageType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE));
         Modules_Uptimeify_Settings::setDefaultCheckInterval((int) $form->getValue(Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL));
         Modules_Uptimeify_Settings::setDefaultMonitoringType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_MONITORING_TYPE));
@@ -135,17 +134,17 @@ class SettingsController extends pm_Controller_Action
         ]);
 
         if ($connected) {
-            $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER, [
-                'label'        => $this->lmsg('settings.defaultCustomer'),
-                'multiOptions' => $this->customerOptions(),
-                'value'        => Modules_Uptimeify_Settings::getDefaultCustomerPublicId(),
-                'description'  => $this->lmsg('settings.defaultCustomerHint'),
+            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_CREATE_CUSTOMERS, [
+                'label'       => $this->lmsg('settings.autoCreateCustomers'),
+                'checked'     => Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled(),
+                'description' => $this->lmsg('settings.autoCreateCustomersHint'),
             ]);
 
             $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE, [
                 'label'        => $this->lmsg('settings.defaultPackage'),
                 'multiOptions' => $this->packageOptions(),
                 'value'        => Modules_Uptimeify_Settings::getDefaultPackageType(),
+                'description'  => $this->lmsg('settings.defaultPackageHint'),
             ]);
 
             $form->addElement('select', Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, [
@@ -165,14 +164,9 @@ class SettingsController extends pm_Controller_Action
             ]);
 
             $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_SYNC, [
-                'label'   => $this->lmsg('settings.autoSync'),
-                'checked' => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
-            ]);
-
-            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_CREATE, [
-                'label'       => $this->lmsg('settings.autoCreate'),
-                'checked'     => Modules_Uptimeify_Settings::isAutoCreateEnabled(),
-                'description' => $this->lmsg('settings.autoCreateHint'),
+                'label'       => $this->lmsg('settings.autoSync'),
+                'checked'     => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
+                'description' => $this->lmsg('settings.autoSyncHint'),
             ]);
 
             $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED, [
@@ -188,25 +182,6 @@ class SettingsController extends pm_Controller_Action
         ]);
 
         return $form;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function customerOptions(): array
-    {
-        $options = ['' => $this->lmsg('settings.choose')];
-        try {
-            foreach (Modules_Uptimeify_Api_Client::fromSettings()->listCustomers(Modules_Uptimeify_Settings::getOrganizationId()) as $c) {
-                $publicId = (string) ($c['publicId'] ?? $c['id'] ?? '');
-                if ($publicId !== '') {
-                    $options[$publicId] = (string) ($c['name'] ?? $publicId);
-                }
-            }
-        } catch (Modules_Uptimeify_Api_Exception_ApiException) {
-            // Leave the placeholder only; the connection banner already reports the error.
-        }
-        return $options;
     }
 
     /**

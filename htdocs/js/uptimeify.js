@@ -48,16 +48,12 @@
             btn.addEventListener('click', function () {
                 var wrap = btn.closest('.uptimeify-enable');
                 var domain = btn.getAttribute('data-domain');
-                var customer = wrap.querySelector('.uptimeify-customer').value;
+                var customer = wrap.querySelector('.uptimeify-customer').value || 'auto';
                 var pkg = wrap.querySelector('.uptimeify-package').value;
-                if (!customer) {
-                    notify('Please choose a customer first.', true);
-                    return;
-                }
                 btn.disabled = true;
                 post(window.UPTIMEIFY.enableUrl, {
                     domain: domain,
-                    customerPublicId: customer,
+                    customerChoice: customer,
                     packageType: pkg
                 }).then(function (res) {
                     if (res.success) {
@@ -113,6 +109,13 @@
                 btn.disabled = false;
                 btn.textContent = original;
                 if (res.success) {
+                    var s = res.summary || {};
+                    var msg = 'Customers created: ' + (s.customersCreated || 0) +
+                        ', monitors created: ' + (s.websitesCreated || 0);
+                    if (s.errors && s.errors.length) {
+                        msg += '\n\nIssues:\n- ' + s.errors.join('\n- ');
+                        window.alert(msg);
+                    }
                     window.location.reload();
                 } else {
                     notify(res.message || 'Sync failed.', true);

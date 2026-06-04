@@ -6,6 +6,27 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-04
+
+### Added
+- **Mirror Plesk customers into uptimeify (1:1).** Each Plesk customer (client)
+  maps to a uptimeify customer — matched by email then name, auto-created with the
+  default package when missing. Domains become monitors under the right customer.
+- **"Mirror & sync all"** one-click bulk provisioning of customers + monitors.
+- **Per-domain customer choice** on the dashboard: default "Auto: <Plesk customer>"
+  or override via dropdown; package selectable for newly created customers.
+- Dashboard now shows the owning Plesk customer and the mapped uptimeify customer.
+
+### Changed
+- Replaced the single "default customer" setting with "Mirror Plesk customers"
+  plus a "default package for new customers".
+- Corrected the DNSBL description: it is **included in the package** (bound by the
+  IP quota), not a separate add-on.
+
+### Fixed
+- DNSBL server-IP registration now uses the real per-customer endpoint during
+  monitor creation.
+
 ## [1.0.7] - 2026-06-04
 
 ### Fixed
@@ -95,7 +116,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.7...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.4...v1.0.5

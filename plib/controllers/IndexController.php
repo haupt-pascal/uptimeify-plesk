@@ -30,17 +30,15 @@ class IndexController extends pm_Controller_Action
         }
 
         $this->view->organizationName = Modules_Uptimeify_Settings::getOrganizationName();
-        $this->view->autoSync         = Modules_Uptimeify_Settings::isAutoSyncEnabled();
-        $this->view->signupUrl        = 'https://uptimeify.io';
+        $this->view->autoCreate       = Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled();
 
         try {
             $service = Modules_Uptimeify_Sync_DomainSyncService::create();
             $this->view->rows      = $service->getDashboardRows();
-            $this->view->customers = Modules_Uptimeify_Api_Client::fromSettings()
-                ->listCustomers(Modules_Uptimeify_Settings::getOrganizationId());
+            $this->view->customers = $service->listCustomerChoices();
             $this->view->packages  = Modules_Uptimeify_Api_Client::fromSettings()->listPackageConfigs();
             $this->view->loadError = null;
-        } catch (Modules_Uptimeify_Api_Exception_UnauthorizedException $e) {
+        } catch (Modules_Uptimeify_Api_Exception_UnauthorizedException) {
             $this->view->rows      = [];
             $this->view->customers = [];
             $this->view->packages  = [];
@@ -54,33 +52,34 @@ class IndexController extends pm_Controller_Action
     }
 
     /**
-     * AJAX: enable monitoring for one domain. Expects domain, customerPublicId, packageType.
+     * AJAX: enable monitoring for one domain.
+     * Params: domain, customerChoice ('auto' or a customer public id), packageType.
      */
     public function enableAction(): void
     {
         $this->_forbidGet();
 
         $domain   = (string) $this->_getParam('domain');
-        $customer = (string) $this->_getParam('customerPublicId');
+        $choice   = (string) $this->_getParam('customerChoice') ?: 'auto';
         $package  = (string) $this->_getParam('packageType');
 
-        if ($domain === '' || $customer === '') {
+        if ($domain === '') {
             $this->_helper->json(['success' => false, 'message' => $this->lmsg('error.missingParams')]);
             return;
         }
 
         try {
-            Modules_Uptimeify_Sync_DomainSyncService::create()->enable($domain, $customer, $package);
+            Modules_Uptimeify_Sync_DomainSyncService::create()->enable($domain, $choice, $package !== '' ? $package : null);
             $this->_helper->json([
                 'success' => true,
                 'message' => $this->lmsg('dashboard.enabled', ['domain' => $domain]),
             ]);
-        } catch (Modules_Uptimeify_Api_Exception_QuotaExceededException $e) {
+        } catch (Modules_Uptimeify_Api_Exception_QuotaExceededException) {
             $this->_helper->json([
-                'success'   => false,
-                'quota'     => true,
+                'success'    => false,
+                'quota'      => true,
                 'upgradeUrl' => 'https://uptimeify.io',
-                'message'   => $this->lmsg('error.quota'),
+                'message'    => $this->lmsg('error.quota'),
             ]);
         } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
             $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
@@ -88,7 +87,7 @@ class IndexController extends pm_Controller_Action
     }
 
     /**
-     * AJAX: disable monitoring for one domain. Expects domain, websitePublicId.
+     * AJAX: disable monitoring for one domain. Params: domain, websitePublicId.
      */
     public function disableAction(): void
     {
@@ -114,14 +113,14 @@ class IndexController extends pm_Controller_Action
     }
 
     /**
-     * Manual full sync (runs the same reconcile as the scheduled task).
+     * AJAX: mirror the Plesk customer base and sync all unmonitored domains.
      */
     public function syncAction(): void
     {
         $this->_forbidGet();
 
         try {
-            $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->reconcile();
+            $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->mirrorAndSyncAll();
             $this->_helper->json(['success' => true, 'summary' => $summary]);
         } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
             $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
