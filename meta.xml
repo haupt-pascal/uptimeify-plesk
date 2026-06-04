@@ -7,8 +7,8 @@
     <url>https://uptimeify.io</url>
     <help_url>https://uptimeify.io/docs/api</help_url>
     <support_url>https://github.com/haupt-pascal/uptimeify-plesk/issues</support_url>
-    <version>1.2.4</version>
-    <release>15</release>
+    <version>1.3.0</version>
+    <release>16</release>
     <vendor>Uptimeify</vendor>
     <plesk_min_version>18.0.20</plesk_min_version>
 </module>

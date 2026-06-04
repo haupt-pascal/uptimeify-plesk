@@ -143,11 +143,43 @@ class Modules_Uptimeify_Sync_DomainSyncService
      */
     public function mirrorAndSyncAll(): array
     {
-        $summary    = ['customersCreated' => 0, 'websitesCreated' => 0, 'skipped' => 0, 'errors' => []];
-        $autoCreate = Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled();
+        return $this->syncRows($this->getDashboardRows());
+    }
+
+    /**
+     * Sync only the given domains (by name) — used by the "sync selected" action.
+     *
+     * @param list<string> $domains
+     * @return array{customersCreated:int, websitesCreated:int, skipped:int, errors:list<string>}
+     */
+    public function syncSelected(array $domains): array
+    {
+        $wanted = [];
+        foreach ($domains as $domain) {
+            $wanted[$domain] = true;
+        }
+
+        $rows = [];
+        foreach ($this->getDashboardRows() as $row) {
+            if (isset($wanted[(string) $row['domain']])) {
+                $rows[] = $row;
+            }
+        }
+
+        return $this->syncRows($rows);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @return array{customersCreated:int, websitesCreated:int, skipped:int, errors:list<string>}
+     */
+    private function syncRows(array $rows): array
+    {
+        $summary     = ['customersCreated' => 0, 'websitesCreated' => 0, 'skipped' => 0, 'errors' => []];
+        $autoCreate  = Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled();
         $packageType = Modules_Uptimeify_Settings::getDefaultPackageType();
 
-        foreach ($this->getDashboardRows() as $row) {
+        foreach ($rows as $row) {
             if ($row['monitored']) {
                 $summary['skipped']++;
                 continue;

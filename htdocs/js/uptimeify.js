@@ -7,11 +7,10 @@
         return meta ? meta.getAttribute('content') : '';
     }
 
-    function post(url, data) {
-        var body = new URLSearchParams(data);
+    function send(url, params) {
         var token = getCsrfToken();
         if (token) {
-            body.append('forgery_protection_token', token);
+            params.append('forgery_protection_token', token);
         }
         return fetch(url, {
             method: 'POST',
@@ -20,8 +19,17 @@
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: body.toString()
+            body: params.toString()
         }).then(function (r) { return r.json(); });
+    }
+
+    function post(url, data) {
+        return send(url, new URLSearchParams(data));
+    }
+
+    function summaryText(s) {
+        return 'Customers created: ' + (s.customersCreated || 0) +
+            ', monitors created: ' + (s.websitesCreated || 0);
     }
 
     function notify(message, isError) {
@@ -98,6 +106,54 @@
         });
     }
 
+    function selectedDomains() {
+        var out = [];
+        document.querySelectorAll('.uptimeify-select:checked').forEach(function (c) {
+            out.push(c.getAttribute('data-domain'));
+        });
+        return out;
+    }
+
+    function bindSelectAll() {
+        var all = document.getElementById('uptimeify-select-all');
+        if (!all) { return; }
+        all.addEventListener('change', function () {
+            document.querySelectorAll('.uptimeify-select').forEach(function (c) {
+                var row = c.closest('.uptimeify-row');
+                if (row && row.style.display === 'none') { return; } // skip filtered-out rows
+                c.checked = all.checked;
+            });
+        });
+    }
+
+    function bindSyncSelected() {
+        var btn = document.getElementById('uptimeify-sync-selected');
+        if (!btn) { return; }
+        btn.addEventListener('click', function () {
+            var domains = selectedDomains();
+            if (!domains.length) {
+                notify('Please select at least one domain.', true);
+                return;
+            }
+            if (!window.confirm('Sync ' + domains.length + ' selected domain(s)?')) { return; }
+            btn.disabled = true;
+            var params = new URLSearchParams();
+            domains.forEach(function (d) { params.append('domains[]', d); });
+            send(btn.getAttribute('data-url'), params).then(function (res) {
+                btn.disabled = false;
+                if (res.success) {
+                    var s = res.summary || {};
+                    if (s.errors && s.errors.length) {
+                        window.alert(summaryText(s) + '\n\nIssues:\n- ' + s.errors.join('\n- '));
+                    }
+                    window.location.reload();
+                } else {
+                    notify(res.message || 'Sync failed.', true);
+                }
+            });
+        });
+    }
+
     function bindSyncAll() {
         var btn = document.getElementById('uptimeify-sync-all');
         if (!btn) { return; }
@@ -128,6 +184,8 @@
         bindFilter();
         bindEnable();
         bindToggleOff();
+        bindSelectAll();
+        bindSyncSelected();
         bindSyncAll();
     });
 })();

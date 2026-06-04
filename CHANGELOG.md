@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-04
+
+### Added
+- **Selective sync**: a checkbox per unmonitored domain (with a select-all
+  header) and a **"Sync selected"** button to mirror & monitor just the chosen
+  domains, alongside the existing "Mirror & sync all".
+
 ## [1.2.4] - 2026-06-04
 
 ### Changed
@@ -169,7 +176,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.4...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.4...v1.3.0
 [1.2.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.1...v1.2.2

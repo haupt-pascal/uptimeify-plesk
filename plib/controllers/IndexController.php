@@ -128,6 +128,29 @@ class IndexController extends pm_Controller_Action
         }
     }
 
+    /**
+     * AJAX: sync only the selected domains. Param: domains[] (list of names).
+     */
+    public function syncSelectedAction(): void
+    {
+        $this->_forbidGet();
+
+        $domains = $this->_getParam('domains');
+        $domains = is_array($domains) ? array_values(array_filter(array_map('strval', $domains), 'strlen')) : [];
+
+        if (!$domains) {
+            $this->_helper->json(['success' => false, 'message' => $this->lmsg('error.missingParams')]);
+            return;
+        }
+
+        try {
+            $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->syncSelected($domains);
+            $this->_helper->json(['success' => true, 'summary' => $summary]);
+        } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+            $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     private function _forbidGet(): void
     {
         if (!$this->getRequest()->isPost()) {

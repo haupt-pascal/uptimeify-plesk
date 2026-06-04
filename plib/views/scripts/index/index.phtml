@@ -10,6 +10,10 @@ $loadError      = $this->loadError ?? null;
     <p>
         <strong><?= $this->escape($this->organizationName ?: '') ?></strong>
         &nbsp;
+        <button type="button" class="btn" id="uptimeify-sync-selected"
+                data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync-selected')) ?>">
+            <?= $this->escape($this->lmsg('dashboard.syncSelected')) ?>
+        </button>
         <button type="button" class="btn" id="uptimeify-sync-all"
                 data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync')) ?>">
             <?= $this->escape($this->lmsg('dashboard.syncAll')) ?>
@@ -32,6 +36,7 @@ $loadError      = $this->loadError ?? null;
     <table class="list" width="100%" id="uptimeify-table">
         <thead>
         <tr>
+            <th><input type="checkbox" id="uptimeify-select-all" title="<?= $this->escape($this->lmsg('dashboard.selectAll')) ?>"></th>
             <th><?= $this->escape($this->lmsg('dashboard.colDomain')) ?></th>
             <th><?= $this->escape($this->lmsg('dashboard.colOwner')) ?></th>
             <th><?= $this->escape($this->lmsg('dashboard.colCustomer')) ?></th>
@@ -42,6 +47,11 @@ $loadError      = $this->loadError ?? null;
         <tbody>
         <?php foreach ($rows as $row): ?>
             <tr class="uptimeify-row" data-domain="<?= $this->escape($row['domain']) ?>">
+                <td>
+                    <?php if (!$row['monitored']): ?>
+                        <input type="checkbox" class="uptimeify-select" data-domain="<?= $this->escape($row['domain']) ?>">
+                    <?php endif; ?>
+                </td>
                 <td><?= $this->escape($row['domain']) ?></td>
                 <td><?= $this->escape($row['ownerName'] ?: '—') ?></td>
                 <td>
@@ -106,6 +116,7 @@ $loadError      = $this->loadError ?? null;
 <script>
     window.UPTIMEIFY = {
         enableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'enable')) ?>,
-        disableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'disable')) ?>
+        disableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'disable')) ?>,
+        syncSelectedUrl: <?= json_encode(pm_Context::getActionUrl('index', 'sync-selected')) ?>
     };
 </script>

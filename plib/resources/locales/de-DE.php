@@ -10,6 +10,8 @@ $messages = [
 
     'dashboard.notConnected'  => 'Hinterlege deinen uptimeify.io API-Token, um zu starten.',
     'dashboard.syncAll'       => 'Alles spiegeln & synchronisieren',
+    'dashboard.syncSelected'  => 'Ausgewählte synchronisieren',
+    'dashboard.selectAll'     => 'Alle auswählen',
     'dashboard.syncAllHint'   => 'Legt pro Plesk-Kunde einen uptimeify-Customer an (falls fehlend) und einen Monitor pro Domain.',
     'dashboard.openSettings'  => 'Einstellungen',
     'dashboard.colOwner'      => 'Plesk-Kunde',
