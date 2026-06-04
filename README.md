@@ -51,7 +51,10 @@ the Settings tab.
 ## Architecture
 
 ```
-meta.xml                      Extension manifest (id, version, min Plesk)
+meta.xml                      Extension manifest (id, version, release, min Plesk)
+DESCRIPTION.md                Long-form description shown in the Plesk catalog
+_meta/icons/                  Catalog icons (32/64/128/160 px PNG)
+htdocs/index.php              UI entry point (pm_Application) — powers "Open"
 plib/
   controllers/                Plesk MVC controllers
     IndexController.php          Dashboard + AJAX sync actions
@@ -85,15 +88,15 @@ autoloaded by the Plesk runtime; Guzzle is loaded from the bundled
 ### From a release ZIP
 
 1. Download `uptimeify-<version>.zip` from the
-   [Releases](https://github.com/uptimeify/plesk-extension/releases) page.
+   [Releases](https://github.com/haupt-pascal/uptimeify-plesk/releases) page.
 2. In Plesk: **Extensions → My Extensions → Upload Extension** and select the ZIP.
 3. Open the extension, go to **Settings**, paste your `wsm_…` token and save.
 
 ### Build it yourself
 
 ```bash
-git clone https://github.com/uptimeify/plesk-extension.git
-cd plesk-extension
+git clone https://github.com/haupt-pascal/uptimeify-plesk.git
+cd uptimeify-plesk
 composer install
 bin/build.sh            # produces dist/uptimeify-<version>.zip
 ```
@@ -132,14 +135,15 @@ Plesk server.
   PHP 8.2/8.3/8.4 for every push and PR, then builds the extension ZIP as an
   artifact.
 - **Release** (`.github/workflows/release.yml`) — on a `vX.Y.Z` tag, verifies the
-  tag matches `meta.xml`, builds the ZIP and publishes a GitHub Release.
+  tag matches `meta.xml` `<version>`, builds the ZIP and publishes a GitHub Release.
 
-To cut a release:
+To cut a release (see [VERSIONING.md](VERSIONING.md) for the field semantics):
 
 ```bash
-# bump <release> in meta.xml and CHANGELOG.md, commit, then:
-git tag v1.0.0
-git push origin v1.0.0
+# bump <version> (SemVer) and increment <release> (integer) in meta.xml,
+# move the CHANGELOG entry, commit, then:
+git tag v1.0.2
+git push origin main --tags
 ```
 
 ## Security & privacy

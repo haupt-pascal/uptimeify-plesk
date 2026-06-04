@@ -5,8 +5,8 @@
     "license": "MIT",
     "homepage": "https://uptimeify.io",
     "support": {
-        "issues": "https://github.com/uptimeify/plesk-extension/issues",
-        "source": "https://github.com/uptimeify/plesk-extension"
+        "issues": "https://github.com/haupt-pascal/uptimeify-plesk/issues",
+        "source": "https://github.com/haupt-pascal/uptimeify-plesk"
     },
     "require": {
         "php": ">=8.2",

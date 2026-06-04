@@ -21,12 +21,12 @@ jobs:
           php-version: '8.2'
           tools: composer:v2
 
-      - name: Verify tag matches meta.xml release
+      - name: Verify tag matches meta.xml version
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          META="$(grep -oE '<release>[^<]+' meta.xml | sed 's/<release>//')"
+          META="$(grep -oE '<version>[^<]+' meta.xml | sed 's/<version>//')"
           if [ "$TAG" != "$META" ]; then
-            echo "::error::Tag v$TAG does not match meta.xml <release>$META</release>"
+            echo "::error::Tag v$TAG does not match meta.xml <version>$META</version>"
             exit 1
           fi
 

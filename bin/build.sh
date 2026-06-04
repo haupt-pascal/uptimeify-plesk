@@ -14,7 +14,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT_DIR="${1:-$ROOT/dist}"
 cd "$ROOT"
 
-VERSION="$(grep -oE '<release>[^<]+' meta.xml | sed 's/<release>//')"
+VERSION="$(grep -oE '<version>[^<]+' meta.xml | sed 's/<version>//')"
 PKG_NAME="uptimeify-${VERSION}.zip"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
@@ -32,6 +32,8 @@ cp meta.xml "$STAGE/"
 cp -R plib "$STAGE/"
 cp -R htdocs "$STAGE/"
 cp -R vendor "$STAGE/"
+cp -R _meta "$STAGE/"
+cp DESCRIPTION.md "$STAGE/" 2>/dev/null || true
 cp LICENSE "$STAGE/" 2>/dev/null || true
 cp README.md "$STAGE/" 2>/dev/null || true
 
