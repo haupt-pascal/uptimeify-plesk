@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-return [
+$messages = [
     'pageTitle' => 'Uptimeify Monitoring',
 
     'tabs.dashboard' => 'Dashboard',
@@ -18,6 +18,7 @@ return [
     'dashboard.colPackage'    => 'Package',
     'dashboard.colMonitoring' => 'Monitoring',
     'dashboard.enable'        => 'Enable',
+    'dashboard.active'        => 'Active (uncheck to remove)',
     'dashboard.chooseCustomer' => 'Customer…',
     'dashboard.choosePackage'  => 'Package…',
     'dashboard.enabled'       => 'Monitoring enabled for %%domain%%.',
@@ -25,6 +26,14 @@ return [
     'dashboard.noDomains'     => 'No hosting domains found on this server.',
 
     'settings.intro'            => 'This extension is an open-source API client for the',
+    'settings.step1Title'       => 'Step 1 of 2 — Connect your uptimeify account',
+    'settings.step1Intro'       => 'Enter your organization API token to link this Plesk server to uptimeify.io. Without it the extension cannot load your customers or packages.',
+    'settings.step2Title'       => 'Step 2 of 2 — Sync defaults',
+    'settings.step2Intro'       => 'Connected to “%%org%%”. These defaults are used when the scheduled sync auto-creates monitors. You can also enable monitoring per domain on the Dashboard.',
+    'settings.connectButton'    => 'Connect',
+    'settings.getToken'         => 'Where do I find my token?',
+    'settings.goToDashboard'    => 'Go to Dashboard',
+    'settings.changeToken'      => 'Replace API token (leave blank to keep current)',
     'settings.apiToken'         => 'Organization API token',
     'settings.apiTokenHint'     => 'Your uptimeify.io token (starts with wsm_). Create one under Settings → API.',
     'settings.defaultCustomer'  => 'Default customer (auto-create)',

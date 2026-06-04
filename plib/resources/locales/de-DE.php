@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-return [
+$messages = [
     'pageTitle' => 'Uptimeify Monitoring',
 
     'tabs.dashboard' => 'Dashboard',
@@ -18,6 +18,7 @@ return [
     'dashboard.colPackage'    => 'Paket',
     'dashboard.colMonitoring' => 'Monitoring',
     'dashboard.enable'        => 'Aktivieren',
+    'dashboard.active'        => 'Aktiv (abwählen zum Entfernen)',
     'dashboard.chooseCustomer' => 'Kunde…',
     'dashboard.choosePackage'  => 'Paket…',
     'dashboard.enabled'       => 'Monitoring für %%domain%% aktiviert.',
@@ -25,6 +26,14 @@ return [
     'dashboard.noDomains'     => 'Keine Hosting-Domains auf diesem Server gefunden.',
 
     'settings.intro'            => 'Diese Erweiterung ist ein quelloffener API-Client für',
+    'settings.step1Title'       => 'Schritt 1 von 2 — Verbinde dein uptimeify-Konto',
+    'settings.step1Intro'       => 'Trage deinen Organisations-API-Token ein, um diesen Plesk-Server mit uptimeify.io zu verbinden. Ohne ihn kann die Erweiterung weder Kunden noch Pakete laden.',
+    'settings.step2Title'       => 'Schritt 2 von 2 — Sync-Standardwerte',
+    'settings.step2Intro'       => 'Verbunden mit „%%org%%". Diese Standardwerte nutzt der geplante Sync beim automatischen Anlegen von Monitoren. Du kannst Monitoring auch pro Domain im Dashboard aktivieren.',
+    'settings.connectButton'    => 'Verbinden',
+    'settings.getToken'         => 'Wo finde ich meinen Token?',
+    'settings.goToDashboard'    => 'Zum Dashboard',
+    'settings.changeToken'      => 'API-Token ersetzen (leer lassen, um den aktuellen zu behalten)',
     'settings.apiToken'         => 'Organisations-API-Token',
     'settings.apiTokenHint'     => 'Dein uptimeify.io-Token (beginnt mit wsm_). Erstelle ihn unter Einstellungen → API.',
     'settings.defaultCustomer'  => 'Standard-Kunde (Auto-Anlage)',

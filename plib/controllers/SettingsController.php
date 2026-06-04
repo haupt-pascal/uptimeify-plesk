@@ -1,7 +1,11 @@
 <?php
 
 /**
- * Settings tab: API token, connection handshake and sync defaults.
+ * Settings tab as a two-step setup wizard:
+ *   Step 1 — connect the organization API token (validated against the API).
+ *   Step 2 — once connected, configure sync defaults (customer/package, etc.).
+ *
+ * Uses native Plesk styling only (no custom stylesheet).
  */
 
 declare(strict_types=1);
@@ -13,7 +17,6 @@ class SettingsController extends pm_Controller_Action
         parent::init();
 
         $this->view->pageTitle = $this->lmsg('pageTitle');
-        $this->view->headLink()->appendStylesheet(pm_Context::getBaseUrl() . 'css/uptimeify.css');
 
         $this->_tabs = [
             ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],
@@ -23,38 +26,66 @@ class SettingsController extends pm_Controller_Action
 
     public function indexAction(): void
     {
-        $form = $this->buildForm();
+        $connected = Modules_Uptimeify_Settings::hasApiToken()
+            && Modules_Uptimeify_Settings::getOrganizationId();
+
+        $form = $this->buildForm((bool) $connected);
 
         if ($this->getRequest()->isPost() && $form->isValid($this->getRequest()->getPost())) {
-            $token = trim((string) $form->getValue(Modules_Uptimeify_Settings::KEY_API_TOKEN));
+            $this->handleSubmit($form, (bool) $connected);
+            return;
+        }
 
-            if ($token !== '' && !str_starts_with($token, 'wsm_')) {
+        $this->view->connected = (bool) $connected;
+        $this->view->orgName   = Modules_Uptimeify_Settings::getOrganizationName();
+        $this->view->form      = $form;
+    }
+
+    private function handleSubmit(pm_Form_Simple $form, bool $connected): void
+    {
+        $token = trim((string) $form->getValue(Modules_Uptimeify_Settings::KEY_API_TOKEN));
+
+        // When already connected, an empty token field means "keep current".
+        if ($token !== '' || !$connected) {
+            if ($token === '') {
+                $this->_status->addMessage('error', $this->lmsg('error.missingParams'));
+                $this->_helper->json(['redirect' => pm_Context::getActionUrl('settings', 'index')]);
+                return;
+            }
+            if (!str_starts_with($token, 'wsm_')) {
                 $this->_status->addMessage('error', $this->lmsg('settings.invalidPrefix'));
-                $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
+                $this->_helper->json(['redirect' => pm_Context::getActionUrl('settings', 'index')]);
                 return;
             }
 
             Modules_Uptimeify_Settings::setApiToken($token);
-
-            if ($token !== '' && !$this->handshake()) {
-                $this->_helper->json(['redirect' => pm_Context::getBaseUrl()]);
+            if (!$this->handshake()) {
+                $this->_helper->json(['redirect' => pm_Context::getActionUrl('settings', 'index')]);
                 return;
             }
+        }
 
-            Modules_Uptimeify_Settings::setAutoSyncEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_SYNC));
-            Modules_Uptimeify_Settings::setAutoCreateEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE));
-            Modules_Uptimeify_Settings::setDnsblEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED));
-            Modules_Uptimeify_Settings::setDefaultCustomerPublicId((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER));
-            Modules_Uptimeify_Settings::setDefaultPackageType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE));
-            Modules_Uptimeify_Settings::setDefaultCheckInterval((int) $form->getValue(Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL));
-            Modules_Uptimeify_Settings::setDefaultMonitoringType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_MONITORING_TYPE));
-
+        // Persist sync defaults only in the connected (step 2) form.
+        if ($connected) {
+            $this->saveDefaults($form);
             $this->_status->addMessage('info', $this->lmsg('settings.saved'));
-            $this->_helper->json(['redirect' => pm_Context::getBaseUrl() . 'index/index']);
+            $this->_helper->json(['redirect' => pm_Context::getActionUrl('index', 'index')]);
             return;
         }
 
-        $this->view->form = $form;
+        // Just connected for the first time -> reload settings into step 2.
+        $this->_helper->json(['redirect' => pm_Context::getActionUrl('settings', 'index')]);
+    }
+
+    private function saveDefaults(pm_Form_Simple $form): void
+    {
+        Modules_Uptimeify_Settings::setAutoSyncEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_SYNC));
+        Modules_Uptimeify_Settings::setAutoCreateEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE));
+        Modules_Uptimeify_Settings::setDnsblEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED));
+        Modules_Uptimeify_Settings::setDefaultCustomerPublicId((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER));
+        Modules_Uptimeify_Settings::setDefaultPackageType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE));
+        Modules_Uptimeify_Settings::setDefaultCheckInterval((int) $form->getValue(Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL));
+        Modules_Uptimeify_Settings::setDefaultMonitoringType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_MONITORING_TYPE));
     }
 
     /**
@@ -81,66 +112,68 @@ class SettingsController extends pm_Controller_Action
         }
     }
 
-    private function buildForm(): pm_Form_Simple
+    private function buildForm(bool $connected): pm_Form_Simple
     {
         $form = new pm_Form_Simple();
 
         $form->addElement('password', Modules_Uptimeify_Settings::KEY_API_TOKEN, [
-            'label'       => $this->lmsg('settings.apiToken'),
-            'value'       => Modules_Uptimeify_Settings::getApiToken(),
-            'description' => $this->lmsg('settings.apiTokenHint'),
+            'label'          => $connected ? $this->lmsg('settings.changeToken') : $this->lmsg('settings.apiToken'),
+            'description'    => $this->lmsg('settings.apiTokenHint'),
             'renderPassword' => true,
+            'required'       => !$connected,
         ]);
 
-        $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER, [
-            'label'        => $this->lmsg('settings.defaultCustomer'),
-            'multiOptions' => $this->customerOptions(),
-            'value'        => Modules_Uptimeify_Settings::getDefaultCustomerPublicId(),
-            'description'  => $this->lmsg('settings.defaultCustomerHint'),
-        ]);
+        if ($connected) {
+            $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_CUSTOMER, [
+                'label'        => $this->lmsg('settings.defaultCustomer'),
+                'multiOptions' => $this->customerOptions(),
+                'value'        => Modules_Uptimeify_Settings::getDefaultCustomerPublicId(),
+                'description'  => $this->lmsg('settings.defaultCustomerHint'),
+            ]);
 
-        $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE, [
-            'label'        => $this->lmsg('settings.defaultPackage'),
-            'multiOptions' => $this->packageOptions(),
-            'value'        => Modules_Uptimeify_Settings::getDefaultPackageType(),
-        ]);
+            $form->addElement('select', Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE, [
+                'label'        => $this->lmsg('settings.defaultPackage'),
+                'multiOptions' => $this->packageOptions(),
+                'value'        => Modules_Uptimeify_Settings::getDefaultPackageType(),
+            ]);
 
-        $form->addElement('select', Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, [
-            'label'        => $this->lmsg('settings.monitoringType'),
-            'multiOptions' => [
-                'combined'    => 'Combined',
-                'http status' => 'HTTP status',
-                'ssl check'   => 'SSL check',
-            ],
-            'value'        => Modules_Uptimeify_Settings::getDefaultMonitoringType(),
-        ]);
+            $form->addElement('select', Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, [
+                'label'        => $this->lmsg('settings.monitoringType'),
+                'multiOptions' => [
+                    'combined'    => 'Combined',
+                    'http status' => 'HTTP status',
+                    'ssl check'   => 'SSL check',
+                ],
+                'value'        => Modules_Uptimeify_Settings::getDefaultMonitoringType(),
+            ]);
 
-        $form->addElement('text', Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL, [
-            'label'       => $this->lmsg('settings.checkInterval'),
-            'value'       => Modules_Uptimeify_Settings::getDefaultCheckInterval(),
-            'description' => $this->lmsg('settings.checkIntervalHint'),
-        ]);
+            $form->addElement('text', Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL, [
+                'label'       => $this->lmsg('settings.checkInterval'),
+                'value'       => Modules_Uptimeify_Settings::getDefaultCheckInterval(),
+                'description' => $this->lmsg('settings.checkIntervalHint'),
+            ]);
 
-        $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_SYNC, [
-            'label'   => $this->lmsg('settings.autoSync'),
-            'checked' => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
-        ]);
+            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_SYNC, [
+                'label'   => $this->lmsg('settings.autoSync'),
+                'checked' => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
+            ]);
 
-        $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_CREATE, [
-            'label'       => $this->lmsg('settings.autoCreate'),
-            'checked'     => Modules_Uptimeify_Settings::isAutoCreateEnabled(),
-            'description' => $this->lmsg('settings.autoCreateHint'),
-        ]);
+            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_CREATE, [
+                'label'       => $this->lmsg('settings.autoCreate'),
+                'checked'     => Modules_Uptimeify_Settings::isAutoCreateEnabled(),
+                'description' => $this->lmsg('settings.autoCreateHint'),
+            ]);
 
-        $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED, [
-            'label'       => $this->lmsg('settings.dnsbl'),
-            'checked'     => Modules_Uptimeify_Settings::isDnsblEnabled(),
-            'description' => $this->lmsg('settings.dnsblHint'),
-        ]);
+            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED, [
+                'label'       => $this->lmsg('settings.dnsbl'),
+                'checked'     => Modules_Uptimeify_Settings::isDnsblEnabled(),
+                'description' => $this->lmsg('settings.dnsblHint'),
+            ]);
+        }
 
         $form->addControlButtons([
             'cancelHidden' => true,
-            'sendTitle'    => $this->lmsg('settings.save'),
+            'sendTitle'    => $connected ? $this->lmsg('settings.save') : $this->lmsg('settings.connectButton'),
         ]);
 
         return $form;
@@ -152,9 +185,6 @@ class SettingsController extends pm_Controller_Action
     private function customerOptions(): array
     {
         $options = ['' => $this->lmsg('settings.choose')];
-        if (!Modules_Uptimeify_Settings::hasApiToken() || !Modules_Uptimeify_Settings::getOrganizationId()) {
-            return $options;
-        }
         try {
             foreach (Modules_Uptimeify_Api_Client::fromSettings()->listCustomers((int) Modules_Uptimeify_Settings::getOrganizationId()) as $c) {
                 $publicId = (string) ($c['publicId'] ?? $c['id'] ?? '');
@@ -174,9 +204,6 @@ class SettingsController extends pm_Controller_Action
     private function packageOptions(): array
     {
         $options = ['' => $this->lmsg('settings.choose')];
-        if (!Modules_Uptimeify_Settings::hasApiToken()) {
-            return $options;
-        }
         try {
             foreach (Modules_Uptimeify_Api_Client::fromSettings()->listPackageConfigs() as $p) {
                 $key = (string) ($p['packageType'] ?? '');

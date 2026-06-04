@@ -13,7 +13,6 @@ class IndexController extends pm_Controller_Action
         parent::init();
 
         $this->view->pageTitle = $this->lmsg('pageTitle');
-        $this->view->headLink()->appendStylesheet(pm_Context::getBaseUrl() . 'css/uptimeify.css');
         $this->view->headScript()->appendFile(pm_Context::getBaseUrl() . 'js/uptimeify.js');
 
         $this->_tabs = [

@@ -6,6 +6,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-06-04
+
+### Fixed
+- **Translations not resolving** (`[[key]]` shown everywhere): Plesk locale files
+  must assign to a `$messages` variable, not `return` the array.
+- **Custom theme broke the Plesk layout**: removed the dark stylesheet; the UI now
+  uses native Plesk styling (`list` tables, default form/colors).
+
+### Added
+- **Setup wizard**: the Settings tab is now a two-step flow — Step 1 connects and
+  validates the API token; Step 2 (only after a successful connection) configures
+  sync defaults with populated customer/package dropdowns.
+
 ## [1.0.2] - 2026-06-04
 
 ### Fixed
@@ -44,7 +57,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/haupt-pascal/uptimeify-plesk/releases/tag/v1.0.0

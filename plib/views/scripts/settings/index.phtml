@@ -1,10 +1,24 @@
 <?php
 /** @var Zend_View $this */
+$connected = (bool) ($this->connected ?? false);
+$orgName   = (string) ($this->orgName ?? '');
 ?>
-<div class="uptimeify uptimeify-settings">
-    <p class="uptimeify-intro">
-        <?= $this->escape($this->lmsg('settings.intro')) ?>
-        <a href="https://uptimeify.io" target="_blank" rel="noopener">uptimeify.io</a>
+<?php if (!$connected): ?>
+    <h3><?= $this->escape($this->lmsg('settings.step1Title')) ?></h3>
+    <p><?= $this->escape($this->lmsg('settings.step1Intro')) ?></p>
+    <p>
+        <a href="https://uptimeify.io" target="_blank" rel="noopener">
+            <?= $this->escape($this->lmsg('settings.getToken')) ?>
+        </a>
     </p>
-    <?= $this->form ?>
-</div>
+<?php else: ?>
+    <h3><?= $this->escape($this->lmsg('settings.step2Title')) ?></h3>
+    <p><?= $this->escape($this->lmsg('settings.step2Intro', ['org' => $orgName])) ?></p>
+    <p>
+        <a class="btn" href="<?= $this->escape(pm_Context::getActionUrl('index', 'index')) ?>">
+            <?= $this->escape($this->lmsg('settings.goToDashboard')) ?>
+        </a>
+    </p>
+<?php endif; ?>
+
+<?= $this->form ?>
