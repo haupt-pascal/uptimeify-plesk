@@ -25,6 +25,10 @@ class Modules_Uptimeify_Settings
     public const KEY_MAPPING         = 'domainMapping';
     public const KEY_CLIENT_MAP      = 'clientCustomerMap';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
+    public const KEY_SYNC_INTERVAL   = 'syncInterval';
+
+    /** Allowed scheduled-sync frequencies (UI value => cron schedule). */
+    public const SYNC_INTERVALS = ['every_15_min', 'every_30_min', 'hourly', 'daily'];
 
     public static function getApiToken(): string
     {
@@ -83,6 +87,17 @@ class Modules_Uptimeify_Settings
     public static function setAutoSyncEnabled(bool $enabled): void
     {
         pm_Settings::set(self::KEY_AUTO_SYNC, $enabled ? '1' : '');
+    }
+
+    public static function getSyncInterval(): string
+    {
+        $value = (string) pm_Settings::get(self::KEY_SYNC_INTERVAL, 'hourly');
+        return in_array($value, self::SYNC_INTERVALS, true) ? $value : 'hourly';
+    }
+
+    public static function setSyncInterval(string $interval): void
+    {
+        pm_Settings::set(self::KEY_SYNC_INTERVAL, in_array($interval, self::SYNC_INTERVALS, true) ? $interval : 'hourly');
     }
 
     public static function isAutoCreateEnabled(): bool

@@ -80,6 +80,54 @@ if (!class_exists('pm_Domain')) {
     }
 }
 
+if (!class_exists('pm_Scheduler')) {
+    class pm_Scheduler
+    {
+        public static function getInstance(): pm_Scheduler
+        {
+            return new self();
+        }
+
+        /** @return list<pm_Scheduler_Task> */
+        public function listTasks(): array
+        {
+            return [];
+        }
+
+        public function putTask(pm_Scheduler_Task $task): void
+        {
+        }
+
+        public function removeTask(pm_Scheduler_Task $task): void
+        {
+        }
+    }
+}
+
+if (!class_exists('pm_Scheduler_Task')) {
+    class pm_Scheduler_Task
+    {
+        public function getCmd(): string
+        {
+            return '';
+        }
+
+        public function setCmd(string $cmd): void
+        {
+        }
+
+        /** @param array<string, string> $schedule */
+        public function setSchedule(array $schedule): void
+        {
+        }
+
+        /** @param array<int, string> $arguments */
+        public function setArguments(array $arguments): void
+        {
+        }
+    }
+}
+
 if (!class_exists('pm_Client')) {
     class pm_Client
     {

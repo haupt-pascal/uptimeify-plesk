@@ -6,6 +6,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-04
+
+### Fixed
+- **Scheduled sync never registered**: the install hook used a non-existent
+  `pm_Scheduler_Task::setScript()`. It now uses `setCmd()` + a proper cron
+  schedule, so the background sync actually runs.
+
+### Added
+- **Configurable sync frequency** (every 15 min / 30 min / hourly / daily). The
+  Plesk scheduled task is (re)registered whenever the sync settings are saved.
+- Settings are now grouped into "Automatic synchronization" (enable, frequency,
+  mirror customers, default package) and "Monitor defaults" (type, check
+  interval), plus optional DNSBL.
+
 ## [1.1.1] - 2026-06-04
 
 ### Fixed
@@ -122,7 +136,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...v1.0.7

@@ -87,12 +87,20 @@ class SettingsController extends pm_Controller_Action
 
     private function saveDefaults(pm_Form_Simple $form): void
     {
-        Modules_Uptimeify_Settings::setAutoCreateCustomersEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE_CUSTOMERS));
         Modules_Uptimeify_Settings::setAutoSyncEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_SYNC));
+        Modules_Uptimeify_Settings::setSyncInterval((string) $form->getValue(Modules_Uptimeify_Settings::KEY_SYNC_INTERVAL));
+        Modules_Uptimeify_Settings::setAutoCreateCustomersEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_AUTO_CREATE_CUSTOMERS));
         Modules_Uptimeify_Settings::setDnsblEnabled((bool) $form->getValue(Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED));
         Modules_Uptimeify_Settings::setDefaultPackageType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE));
         Modules_Uptimeify_Settings::setDefaultCheckInterval((int) $form->getValue(Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL));
         Modules_Uptimeify_Settings::setDefaultMonitoringType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_MONITORING_TYPE));
+
+        // Re-register the Plesk scheduled task to match the new sync settings.
+        try {
+            Modules_Uptimeify_Scheduler::apply();
+        } catch (Throwable $e) {
+            $this->_status->addMessage('warning', $this->lmsg('settings.scheduleWarning', ['error' => $e->getMessage()]));
+        }
     }
 
     /**
@@ -134,6 +142,25 @@ class SettingsController extends pm_Controller_Action
         ]);
 
         if ($connected) {
+            // --- Automatic synchronization ---
+            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_SYNC, [
+                'label'       => $this->lmsg('settings.autoSync'),
+                'checked'     => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
+                'description' => $this->lmsg('settings.autoSyncHint'),
+            ]);
+
+            $form->addElement('select', Modules_Uptimeify_Settings::KEY_SYNC_INTERVAL, [
+                'label'        => $this->lmsg('settings.syncInterval'),
+                'multiOptions' => [
+                    'every_15_min' => $this->lmsg('settings.interval15'),
+                    'every_30_min' => $this->lmsg('settings.interval30'),
+                    'hourly'       => $this->lmsg('settings.intervalHourly'),
+                    'daily'        => $this->lmsg('settings.intervalDaily'),
+                ],
+                'value'        => Modules_Uptimeify_Settings::getSyncInterval(),
+                'description'  => $this->lmsg('settings.syncIntervalHint'),
+            ]);
+
             $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_CREATE_CUSTOMERS, [
                 'label'       => $this->lmsg('settings.autoCreateCustomers'),
                 'checked'     => Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled(),
@@ -147,6 +174,7 @@ class SettingsController extends pm_Controller_Action
                 'description'  => $this->lmsg('settings.defaultPackageHint'),
             ]);
 
+            // --- Monitor defaults ---
             $form->addElement('select', Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, [
                 'label'        => $this->lmsg('settings.monitoringType'),
                 'multiOptions' => [
@@ -161,12 +189,6 @@ class SettingsController extends pm_Controller_Action
                 'label'       => $this->lmsg('settings.checkInterval'),
                 'value'       => Modules_Uptimeify_Settings::getDefaultCheckInterval(),
                 'description' => $this->lmsg('settings.checkIntervalHint'),
-            ]);
-
-            $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_AUTO_SYNC, [
-                'label'       => $this->lmsg('settings.autoSync'),
-                'checked'     => Modules_Uptimeify_Settings::isAutoSyncEnabled(),
-                'description' => $this->lmsg('settings.autoSyncHint'),
             ]);
 
             $form->addElement('checkbox', Modules_Uptimeify_Settings::KEY_DNSBL_ENABLED, [

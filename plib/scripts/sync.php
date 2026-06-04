@@ -26,8 +26,9 @@ if (!Modules_Uptimeify_Settings::hasApiToken()) {
 try {
     $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->reconcile();
     fwrite(STDOUT, sprintf(
-        "uptimeify sync: created=%d skipped=%d errors=%d\n",
-        $summary['created'],
+        "uptimeify sync: customers=%d monitors=%d skipped=%d errors=%d\n",
+        $summary['customersCreated'],
+        $summary['websitesCreated'],
         $summary['skipped'],
         count($summary['errors']),
     ));
