@@ -6,6 +6,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-06-04
+
+### Fixed
+- **Plesk customer name now resolves correctly**: used the wrong client property
+  key (`company`); the valid Plesk key is `cname`. Customer names (company, then
+  contact person, then login) now show in the dashboard and drive customer
+  matching/creation.
+
 ## [1.2.2] - 2026-06-04
 
 ### Fixed
@@ -155,7 +163,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.1...v1.2.0

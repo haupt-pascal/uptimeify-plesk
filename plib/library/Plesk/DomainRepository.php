@@ -74,7 +74,8 @@ class Modules_Uptimeify_Plesk_DomainRepository
             // ignore
         }
 
-        $name = $this->prop($client, 'company')
+        // Plesk client property keys: cname = company, pname = contact person.
+        $name = $this->prop($client, 'cname')
             ?: $this->prop($client, 'pname')
             ?: $login;
 
