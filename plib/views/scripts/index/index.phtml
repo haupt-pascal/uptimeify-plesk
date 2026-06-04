@@ -1,9 +1,10 @@
 <?php
 /** @var Zend_View $this */
-$rows      = $this->rows ?? [];
-$customers = $this->customers ?? [];
-$packages  = $this->packages ?? [];
-$loadError = $this->loadError ?? null;
+$rows           = $this->rows ?? [];
+$customers      = $this->customers ?? [];
+$packages       = $this->packages ?? [];
+$defaultPackage = (string) ($this->defaultPackage ?? '');
+$loadError      = $this->loadError ?? null;
 ?>
 <div class="uptimeify-dashboard">
     <p>
@@ -78,7 +79,9 @@ $loadError = $this->loadError ?? null;
                             <select class="uptimeify-package" title="<?= $this->escape($this->lmsg('dashboard.choosePackage')) ?>">
                                 <option value=""><?= $this->escape($this->lmsg('dashboard.choosePackage')) ?></option>
                                 <?php foreach ($packages as $p): ?>
-                                    <option value="<?= $this->escape($p['packageType'] ?? '') ?>">
+                                    <?php $pt = (string) ($p['packageType'] ?? ''); ?>
+                                    <option value="<?= $this->escape($pt) ?>"
+                                        <?= ($pt !== '' && $pt === $defaultPackage) ? 'selected' : '' ?>>
                                         <?= $this->escape($p['displayName'] ?? $p['packageType'] ?? '') ?>
                                     </option>
                                 <?php endforeach; ?>

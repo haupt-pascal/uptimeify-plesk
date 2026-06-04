@@ -31,6 +31,7 @@ class IndexController extends pm_Controller_Action
 
         $this->view->organizationName = Modules_Uptimeify_Settings::getOrganizationName();
         $this->view->autoCreate       = Modules_Uptimeify_Settings::isAutoCreateCustomersEnabled();
+        $this->view->defaultPackage   = Modules_Uptimeify_Settings::getDefaultPackageType();
 
         try {
             $service = Modules_Uptimeify_Sync_DomainSyncService::create();

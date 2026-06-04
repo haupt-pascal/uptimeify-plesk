@@ -6,6 +6,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-06-04
+
+### Changed
+- The dashboard per-domain **package dropdown is pre-selected** with the default
+  package configured in Settings.
+
 ## [1.2.3] - 2026-06-04
 
 ### Fixed
@@ -163,7 +169,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.3...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.4...HEAD
+[1.2.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.0...v1.2.1
