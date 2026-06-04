@@ -23,7 +23,7 @@ class IndexController extends pm_Controller_Action
 
     public function indexAction(): void
     {
-        if (!Modules_Uptimeify_Settings::hasApiToken()) {
+        if (!Modules_Uptimeify_Settings::hasApiToken() || !Modules_Uptimeify_Settings::isValidated()) {
             $this->_status->addMessage('info', $this->lmsg('dashboard.notConnected'));
             $this->_forward('index', 'settings');
             return;
@@ -37,7 +37,7 @@ class IndexController extends pm_Controller_Action
             $service = Modules_Uptimeify_Sync_DomainSyncService::create();
             $this->view->rows      = $service->getDashboardRows();
             $this->view->customers = Modules_Uptimeify_Api_Client::fromSettings()
-                ->listCustomers((int) Modules_Uptimeify_Settings::getOrganizationId());
+                ->listCustomers(Modules_Uptimeify_Settings::getOrganizationId());
             $this->view->packages  = Modules_Uptimeify_Api_Client::fromSettings()->listPackageConfigs();
             $this->view->loadError = null;
         } catch (Modules_Uptimeify_Api_Exception_UnauthorizedException $e) {

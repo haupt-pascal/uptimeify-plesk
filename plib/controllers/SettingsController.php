@@ -26,8 +26,16 @@ class SettingsController extends pm_Controller_Action
 
     public function indexAction(): void
     {
+        // Auto-validate an already stored token (e.g. after an upgrade) so the
+        // admin doesn't have to re-enter it to reach step 2.
+        if (!$this->getRequest()->isPost()
+            && Modules_Uptimeify_Settings::hasApiToken()
+            && !Modules_Uptimeify_Settings::isValidated()) {
+            $this->handshake();
+        }
+
         $connected = Modules_Uptimeify_Settings::hasApiToken()
-            && Modules_Uptimeify_Settings::getOrganizationId();
+            && Modules_Uptimeify_Settings::isValidated();
 
         $form = $this->buildForm((bool) $connected);
 
@@ -99,14 +107,17 @@ class SettingsController extends pm_Controller_Action
                 (int) ($org['id'] ?? 0),
                 (string) ($org['name'] ?? ''),
             );
+            Modules_Uptimeify_Settings::setValidated(true);
             $this->_status->addMessage('info', $this->lmsg('settings.connected', [
                 'org' => (string) ($org['name'] ?? ''),
             ]));
             return true;
         } catch (Modules_Uptimeify_Api_Exception_UnauthorizedException) {
+            Modules_Uptimeify_Settings::setValidated(false);
             $this->_status->addMessage('error', $this->lmsg('settings.connectFailed'));
             return false;
         } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+            Modules_Uptimeify_Settings::setValidated(false);
             $this->_status->addMessage('error', $e->getMessage());
             return false;
         }
@@ -186,7 +197,7 @@ class SettingsController extends pm_Controller_Action
     {
         $options = ['' => $this->lmsg('settings.choose')];
         try {
-            foreach (Modules_Uptimeify_Api_Client::fromSettings()->listCustomers((int) Modules_Uptimeify_Settings::getOrganizationId()) as $c) {
+            foreach (Modules_Uptimeify_Api_Client::fromSettings()->listCustomers(Modules_Uptimeify_Settings::getOrganizationId()) as $c) {
                 $publicId = (string) ($c['publicId'] ?? $c['id'] ?? '');
                 if ($publicId !== '') {
                     $options[$publicId] = (string) ($c['name'] ?? $publicId);

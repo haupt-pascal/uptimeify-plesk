@@ -6,6 +6,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-06-04
+
+### Fixed
+- **`HTTP 400: Organization ID required`** on the dashboard: the organization is
+  derived from the API token, so `organizationId` is no longer forced onto
+  `listCustomers` (passing `0` made the API reject the request). It is now sent
+  only when a valid id is known.
+
+### Changed
+- "Connected" state is now tracked by an explicit validation flag instead of the
+  organization id (which the API does not always return), so the setup wizard
+  works even when the org id is absent. Stored tokens are auto-validated on the
+  Settings page after an upgrade.
+
 ## [1.0.6] - 2026-06-04
 
 ### Fixed
@@ -81,7 +95,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.7...HEAD
+[1.0.7]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.3...v1.0.4

@@ -14,6 +14,7 @@ class Modules_Uptimeify_Settings
     public const KEY_API_TOKEN       = 'apiToken';
     public const KEY_ORG_ID          = 'organizationId';
     public const KEY_ORG_NAME        = 'organizationName';
+    public const KEY_VALIDATED       = 'connectionValidated';
     public const KEY_AUTO_SYNC       = 'autoSyncEnabled';
     public const KEY_AUTO_CREATE     = 'autoCreateNewDomains';
     public const KEY_DEFAULT_CUSTOMER = 'defaultCustomerPublicId';
@@ -36,6 +37,23 @@ class Modules_Uptimeify_Settings
     public static function setApiToken(string $token): void
     {
         pm_Settings::set(self::KEY_API_TOKEN, trim($token));
+        // A new/changed token must be re-validated before it counts as connected.
+        self::setValidated(false);
+    }
+
+    /**
+     * Whether the stored token has been successfully validated against the API.
+     * This is the source of truth for "connected" — the organization id is not
+     * required (it is derived from the token by the API).
+     */
+    public static function isValidated(): bool
+    {
+        return (bool) pm_Settings::get(self::KEY_VALIDATED, false);
+    }
+
+    public static function setValidated(bool $validated): void
+    {
+        pm_Settings::set(self::KEY_VALIDATED, $validated ? '1' : '');
     }
 
     public static function getOrganizationId(): ?int

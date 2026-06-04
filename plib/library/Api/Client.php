@@ -62,11 +62,19 @@ class Modules_Uptimeify_Api_Client
     }
 
     /**
+     * List customers. The organization is derived from the token; only pass an
+     * explicit id when it is genuinely known (> 0) — passing 0 makes the API
+     * reject the request with "Organization ID required".
+     *
      * @return list<array<string, mixed>>
      */
-    public function listCustomers(int $organizationId): array
+    public function listCustomers(?int $organizationId = null): array
     {
-        $data = $this->request('GET', '/api/customers', ['query' => ['organizationId' => $organizationId]]);
+        $options = [];
+        if ($organizationId !== null && $organizationId > 0) {
+            $options['query'] = ['organizationId' => $organizationId];
+        }
+        $data = $this->request('GET', '/api/customers', $options);
         return array_values(array_filter($data, 'is_array'));
     }
 
