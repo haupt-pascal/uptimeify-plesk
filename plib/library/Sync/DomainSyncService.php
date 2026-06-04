@@ -283,11 +283,17 @@ class Modules_Uptimeify_Sync_DomainSyncService
         $this->ipEnsured[$key] = true;
 
         try {
-            $this->api->createCustomerIp($customerPublicId, $ip, 'Plesk Server IP');
+            $this->api->createCustomerIp($customerPublicId, $ip, 'Plesk: ' . $this->serverHostname());
         } catch (Modules_Uptimeify_Api_Exception_ApiException) {
             // 409 = already registered for this customer (fine); other errors are
             // best-effort and must never block the website creation.
         }
+    }
+
+    private function serverHostname(): string
+    {
+        $host = gethostname();
+        return is_string($host) && $host !== '' ? $host : 'server';
     }
 
     /**
