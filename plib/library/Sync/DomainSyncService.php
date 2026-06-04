@@ -91,6 +91,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
      *
      * @param string $customerChoice 'auto' (mirror the Plesk client) or an explicit customer public id.
      *
+     * @return array<string, mixed> The created website record.
+     *
      * @throws Modules_Uptimeify_Api_Exception_ApiException
      */
     public function enable(string $domain, string $customerChoice = 'auto', ?string $packageType = null): array
@@ -187,6 +189,10 @@ class Modules_Uptimeify_Sync_DomainSyncService
         return $this->mirrorAndSyncAll();
     }
 
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
     private function createMonitor(array $row, string $customerPublicId, string $packageType): array
     {
         $website = $this->api->createWebsite(

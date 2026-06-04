@@ -6,6 +6,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-06-04
+
+### Fixed
+- Add missing array type annotations (`enable()`, `createMonitor()`) so PHPStan
+  level 6 passes. No functional change over 1.1.0.
+
 ## [1.1.0] - 2026-06-04
 
 ### Added
@@ -116,7 +122,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.0.5...v1.0.6
