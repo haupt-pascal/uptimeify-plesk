@@ -76,6 +76,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
     /**
      * Enable monitoring for a single domain.
      *
+     * @return array<string, mixed> The created website record.
+     *
      * @throws Modules_Uptimeify_Api_Exception_ApiException
      */
     public function enable(

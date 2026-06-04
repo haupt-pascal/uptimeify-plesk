@@ -140,6 +140,9 @@ class Modules_Uptimeify_Settings
         return is_array($decoded) ? $decoded : [];
     }
 
+    /**
+     * @return array{websitePublicId:string, customerPublicId:string, packageType:string}|null
+     */
     public static function getMappingFor(string $domain): ?array
     {
         return self::getMapping()[$domain] ?? null;
