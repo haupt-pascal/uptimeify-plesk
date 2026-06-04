@@ -31,7 +31,8 @@ mkdir -p "$STAGE"
 cp meta.xml "$STAGE/"
 cp -R plib "$STAGE/"
 cp -R htdocs "$STAGE/"
-cp -R vendor "$STAGE/"
+# Composer deps must live under plib/vendor so Plesk auto-loads them at runtime.
+cp -R vendor "$STAGE/plib/vendor"
 cp -R _meta "$STAGE/"
 cp DESCRIPTION.md "$STAGE/" 2>/dev/null || true
 cp LICENSE "$STAGE/" 2>/dev/null || true

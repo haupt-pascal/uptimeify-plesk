@@ -33,6 +33,16 @@ if (!class_exists('pm_Settings')) {
     }
 }
 
+if (!class_exists('pm_Context')) {
+    class pm_Context
+    {
+        public static function getPlibDir(): string
+        {
+            return '';
+        }
+    }
+}
+
 if (!class_exists('pm_Domain')) {
     class pm_Domain
     {

@@ -26,8 +26,12 @@ class Modules_Uptimeify_Api_Client
 
     public function __construct(private readonly string $token)
     {
-        // Guzzle is bundled via composer into the extension's vendor/ directory.
-        require_once __DIR__ . '/../../../vendor/autoload.php';
+        // Guzzle is bundled into plib/vendor. Plesk auto-includes it, but we
+        // require it defensively so the client also works from the cron CLI.
+        $autoload = rtrim(pm_Context::getPlibDir(), '/') . '/vendor/autoload.php';
+        if (is_file($autoload)) {
+            require_once $autoload;
+        }
 
         $this->http = new GuzzleClient([
             'base_uri'        => self::BASE_URL,

@@ -70,12 +70,13 @@ plib/
   views/scripts/                .phtml templates
   resources/locales/            en-US, de-DE
 htdocs/                         Public CSS/JS (dark teal theme)
-vendor/                         Bundled Guzzle (production build only)
+plib/vendor/                    Bundled Guzzle (in the built package only; Plesk auto-loads it)
 ```
 
 Library classes use the Plesk `Modules_Uptimeify_*` underscore naming so they are
-autoloaded by the Plesk runtime; Guzzle is loaded from the bundled
-`vendor/autoload.php`.
+autoloaded by the Plesk runtime. Composer dependencies live under `plib/vendor/`
+in the built package, which Plesk includes automatically (`bin/build.sh` places
+them there; locally they stay in the default `vendor/`).
 
 ## Requirements
 
