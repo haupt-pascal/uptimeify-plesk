@@ -1,0 +1,157 @@
+/* uptimeify Plesk extension — dark-mode-first corporate styling */
+
+.uptimeify {
+    --uptimeify-bg: #0c0f14;
+    --uptimeify-surface: #141922;
+    --uptimeify-border: #232a36;
+    --uptimeify-text: #e6edf3;
+    --uptimeify-muted: #8b97a7;
+    --uptimeify-accent: #2ee6b6;     /* teal / mint */
+    --uptimeify-accent-dim: #1f9e7e;
+    --uptimeify-up: #34d399;
+    --uptimeify-down: #f43f5e;
+    --uptimeify-maintenance: #f59e0b;
+
+    background: var(--uptimeify-bg);
+    color: var(--uptimeify-text);
+    border-radius: 12px;
+    padding: 24px;
+    font-feature-settings: "tnum";
+}
+
+.uptimeify-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.uptimeify-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--uptimeify-accent), var(--uptimeify-accent-dim));
+    color: #04140f;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-right: 10px;
+    text-transform: uppercase;
+}
+
+.uptimeify .btn-primary,
+.uptimeify .uptimeify-enable-btn {
+    background: var(--uptimeify-accent);
+    border-color: var(--uptimeify-accent);
+    color: #04140f;
+    font-weight: 600;
+}
+
+.uptimeify .btn-primary:hover {
+    background: var(--uptimeify-accent-dim);
+}
+
+.uptimeify-filter {
+    width: 100%;
+    max-width: 360px;
+    background: var(--uptimeify-surface);
+    border: 1px solid var(--uptimeify-border);
+    color: var(--uptimeify-text);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+.uptimeify-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--uptimeify-surface);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.uptimeify-table th,
+.uptimeify-table td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--uptimeify-border);
+    font-size: 13px;
+}
+
+.uptimeify-table th {
+    color: var(--uptimeify-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 11px;
+}
+
+.uptimeify-domain {
+    font-weight: 600;
+}
+
+.uptimeify-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.uptimeify-status-active { background: rgba(52, 211, 153, 0.15); color: var(--uptimeify-up); }
+.uptimeify-status-down,
+.uptimeify-status-listed { background: rgba(244, 63, 94, 0.15); color: var(--uptimeify-down); }
+.uptimeify-status-maintenance { background: rgba(245, 158, 11, 0.15); color: var(--uptimeify-maintenance); }
+.uptimeify-status-inactive,
+.uptimeify-status-paused,
+.uptimeify-status-none { background: rgba(139, 151, 167, 0.15); color: var(--uptimeify-muted); }
+
+.uptimeify-col-action { text-align: right; }
+
+.uptimeify-enable {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.uptimeify-enable select {
+    background: var(--uptimeify-bg);
+    border: 1px solid var(--uptimeify-border);
+    color: var(--uptimeify-text);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
+/* Toggle switch */
+.uptimeify-toggle { position: relative; display: inline-block; width: 42px; height: 22px; }
+.uptimeify-toggle input { opacity: 0; width: 0; height: 0; }
+.uptimeify-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--uptimeify-border);
+    border-radius: 999px; transition: 0.2s;
+}
+.uptimeify-slider::before {
+    content: ""; position: absolute; height: 16px; width: 16px;
+    left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
+}
+.uptimeify-toggle input:checked + .uptimeify-slider { background: var(--uptimeify-accent); }
+.uptimeify-toggle input:checked + .uptimeify-slider::before { transform: translateX(20px); }
+
+.uptimeify-alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+.uptimeify-alert-error {
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    color: #fda4af;
+}
+
+.uptimeify-empty,
+.uptimeify-intro { color: var(--uptimeify-muted); }
+.uptimeify-intro a,
+.uptimeify-alert a { color: var(--uptimeify-accent); }

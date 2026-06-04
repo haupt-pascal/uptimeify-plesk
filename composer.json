@@ -1,0 +1,39 @@
+{
+    "name": "uptimeify/plesk-extension",
+    "description": "Plesk Obsidian extension that syncs local domains to uptimeify.io uptime & blacklist monitoring.",
+    "type": "plesk-extension",
+    "license": "MIT",
+    "homepage": "https://uptimeify.io",
+    "support": {
+        "issues": "https://github.com/uptimeify/plesk-extension/issues",
+        "source": "https://github.com/uptimeify/plesk-extension"
+    },
+    "require": {
+        "php": ">=8.2",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11",
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "phpunit/phpunit": "^11.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Uptimeify\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "scripts": {
+        "lint": "php-cs-fixer fix --dry-run --diff",
+        "fix": "php-cs-fixer fix",
+        "stan": "phpstan analyse",
+        "test": "phpunit"
+    }
+}

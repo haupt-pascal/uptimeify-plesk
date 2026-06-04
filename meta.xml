@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+    <id>uptimeify</id>
+    <name>Uptimeify Monitoring</name>
+    <release>1.0.0</release>
+    <version>2.0</version>
+    <vendor>Uptimeify</vendor>
+    <url>https://uptimeify.io</url>
+    <plesk_min_version>18.0.20</plesk_min_version>
+    <description>Sync your Plesk domains to uptimeify.io uptime &amp; blacklist monitoring. Connect an organization API token, pick a customer and package per domain, and keep monitors in sync automatically. Open source API client for the uptimeify.io SaaS platform.</description>
+</module>

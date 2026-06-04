@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish extension package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Verify tag matches meta.xml release
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          META="$(grep -oE '<release>[^<]+' meta.xml | sed 's/<release>//')"
+          if [ "$TAG" != "$META" ]; then
+            echo "::error::Tag v$TAG does not match meta.xml <release>$META</release>"
+            exit 1
+          fi
+
+      - name: Build package
+        run: bin/build.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}

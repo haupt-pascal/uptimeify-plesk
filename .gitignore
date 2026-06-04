@@ -1,0 +1,17 @@
+# Internal material (not part of the open-source release)
+internal/
+
+# Build output
+/dist/
+/vendor/
+
+# Tooling caches
+/.phpunit.cache/
+.php-cs-fixer.cache
+/.phpstan.cache/
+
+# Composer lock is kept (see note in CONTRIBUTING); editor cruft is not
+.DS_Store
+*.swp
+.idea/
+.vscode/

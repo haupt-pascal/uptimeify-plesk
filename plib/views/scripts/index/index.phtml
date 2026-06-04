@@ -1,0 +1,100 @@
+<?php
+/** @var Zend_View $this */
+$rows      = $this->rows ?? [];
+$customers = $this->customers ?? [];
+$packages  = $this->packages ?? [];
+$loadError = $this->loadError ?? null;
+?>
+<div class="uptimeify">
+    <div class="uptimeify-header">
+        <div>
+            <span class="uptimeify-badge">uptimeify.io</span>
+            <strong><?= $this->escape($this->organizationName ?: 'Connected') ?></strong>
+        </div>
+        <button type="button" class="btn btn-primary" id="uptimeify-sync-all"
+                data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync')) ?>">
+            <?= $this->escape($this->lmsg('dashboard.syncAll')) ?>
+        </button>
+    </div>
+
+    <?php if ($loadError): ?>
+        <div class="uptimeify-alert uptimeify-alert-error"><?= $this->escape($loadError) ?></div>
+    <?php endif; ?>
+
+    <input type="text" id="uptimeify-filter" class="uptimeify-filter"
+           placeholder="<?= $this->escape($this->lmsg('dashboard.filter')) ?>">
+
+    <table class="uptimeify-table" id="uptimeify-table">
+        <thead>
+        <tr>
+            <th><?= $this->escape($this->lmsg('dashboard.colDomain')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colType')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colStatus')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colCustomer')) ?></th>
+            <th><?= $this->escape($this->lmsg('dashboard.colPackage')) ?></th>
+            <th class="uptimeify-col-action"><?= $this->escape($this->lmsg('dashboard.colMonitoring')) ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($rows as $row): ?>
+            <tr class="uptimeify-row" data-domain="<?= $this->escape($row['domain']) ?>">
+                <td class="uptimeify-domain"><?= $this->escape($row['domain']) ?></td>
+                <td><?= $this->escape($row['monitoringType'] ?? '—') ?></td>
+                <td>
+                    <span class="uptimeify-status uptimeify-status-<?= $this->escape($row['status'] ?? 'none') ?>">
+                        <?= $this->escape($row['status'] ?? '—') ?>
+                    </span>
+                </td>
+                <td><?= $this->escape($row['customerName'] ?? '—') ?></td>
+                <td><?= $this->escape($row['packageType'] ?? '—') ?></td>
+                <td class="uptimeify-col-action">
+                    <?php if ($row['monitored']): ?>
+                        <label class="uptimeify-toggle">
+                            <input type="checkbox" checked
+                                   class="uptimeify-monitor-toggle"
+                                   data-domain="<?= $this->escape($row['domain']) ?>"
+                                   data-website="<?= $this->escape($row['websitePublicId'] ?? '') ?>">
+                            <span class="uptimeify-slider"></span>
+                        </label>
+                    <?php else: ?>
+                        <div class="uptimeify-enable">
+                            <select class="uptimeify-customer">
+                                <option value=""><?= $this->escape($this->lmsg('dashboard.chooseCustomer')) ?></option>
+                                <?php foreach ($customers as $c): ?>
+                                    <option value="<?= $this->escape($c['publicId'] ?? $c['id'] ?? '') ?>"
+                                            data-package="<?= $this->escape($c['packageDisplayName'] ?? '') ?>">
+                                        <?= $this->escape($c['name'] ?? '') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <select class="uptimeify-package">
+                                <option value=""><?= $this->escape($this->lmsg('dashboard.choosePackage')) ?></option>
+                                <?php foreach ($packages as $p): ?>
+                                    <option value="<?= $this->escape($p['packageType'] ?? '') ?>">
+                                        <?= $this->escape($p['displayName'] ?? $p['packageType'] ?? '') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn uptimeify-enable-btn"
+                                    data-domain="<?= $this->escape($row['domain']) ?>">
+                                <?= $this->escape($this->lmsg('dashboard.enable')) ?>
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <?php if (!$rows && !$loadError): ?>
+        <p class="uptimeify-empty"><?= $this->escape($this->lmsg('dashboard.noDomains')) ?></p>
+    <?php endif; ?>
+</div>
+
+<script>
+    window.UPTIMEIFY = {
+        enableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'enable')) ?>,
+        disableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'disable')) ?>
+    };
+</script>
