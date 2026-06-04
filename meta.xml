@@ -2,7 +2,7 @@
 <module>
     <id>uptimeify</id>
     <name>Uptimeify Monitoring</name>
-    <release>1.0.0</release>
+    <release>1.0.1</release>
     <version>2.0</version>
     <vendor>Uptimeify</vendor>
     <url>https://uptimeify.io</url>
