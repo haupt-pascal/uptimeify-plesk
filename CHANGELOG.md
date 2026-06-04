@@ -6,6 +6,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-06-04
+
+### Fixed
+- **Enable/sync failed with a forgery-protection (CSRF) error**: the dashboard
+  AJAX calls now read Plesk's `forgery_protection_token` meta tag and send it as
+  both the `X-Forgery-Protection-Token` header and the form field.
+
+### Changed
+- **No more browser pop-ups.** Action results use Plesk's native status messages
+  (shown after reload); the delete confirmation is now an inline "Remove / Cancel"
+  control instead of a `window.confirm` dialog; transport errors show an inline
+  Plesk-styled message box.
+
 ## [1.3.0] - 2026-06-04
 
 ### Added
@@ -176,7 +189,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.4...v1.3.0
 [1.2.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.2...v1.2.3

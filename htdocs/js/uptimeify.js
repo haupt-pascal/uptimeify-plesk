@@ -2,22 +2,24 @@
 (function () {
     'use strict';
 
-    function getCsrfToken() {
-        var meta = document.querySelector('meta[name="csrf_token"]');
-        return meta ? meta.getAttribute('content') : '';
+    // Plesk renders the CSRF token as <meta id/name="forgery_protection_token" content="...">.
+    function forgeryToken() {
+        var el = document.getElementById('forgery_protection_token') ||
+            document.querySelector('meta[name="forgery_protection_token"]');
+        if (!el) { return ''; }
+        return el.content || el.getAttribute('content') || el.value || '';
     }
 
     function send(url, params) {
-        var token = getCsrfToken();
-        if (token) {
-            params.append('forgery_protection_token', token);
-        }
+        var token = forgeryToken();
+        if (token) { params.append('forgery_protection_token', token); }
         return fetch(url, {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-Forgery-Protection-Token': token || ''
             },
             body: params.toString()
         }).then(function (r) { return r.json(); });
@@ -27,16 +29,28 @@
         return send(url, new URLSearchParams(data));
     }
 
-    function summaryText(s) {
-        return 'Customers created: ' + (s.customersCreated || 0) +
-            ', monitors created: ' + (s.websitesCreated || 0);
+    // Inline, Plesk-styled message (used only for transport/JS errors; action
+    // results are shown via Plesk's native status messages after reload).
+    function banner(text) {
+        var box = document.getElementById('uptimeify-msg');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'uptimeify-msg';
+            box.className = 'msg-box msg-error';
+            var wrap = document.querySelector('.uptimeify-dashboard') || document.body;
+            wrap.insertBefore(box, wrap.firstChild);
+        }
+        var content = document.createElement('div');
+        content.className = 'msg-content';
+        content.textContent = text;
+        box.innerHTML = '';
+        box.appendChild(content);
     }
 
-    function notify(message, isError) {
-        // Fall back to a simple alert; Plesk's status messages render on reload.
-        if (isError) {
-            window.alert(message);
-        }
+    // Server actions set a native Plesk status message and ask us to reload.
+    function handled(res) {
+        if (res && res.reload) { window.location.reload(); return true; }
+        return false;
     }
 
     function bindFilter() {
@@ -64,43 +78,58 @@
                     customerChoice: customer,
                     packageType: pkg
                 }).then(function (res) {
-                    if (res.success) {
-                        window.location.reload();
-                    } else {
+                    if (!handled(res)) {
                         btn.disabled = false;
-                        if (res.quota && res.upgradeUrl) {
-                            if (window.confirm(res.message + '\n\nOpen upgrade page?')) {
-                                window.open(res.upgradeUrl, '_blank');
-                            }
-                        } else {
-                            notify(res.message || 'Failed to enable monitoring.', true);
-                        }
+                        banner((res && res.message) || 'Request failed.');
                     }
+                }).catch(function () {
+                    btn.disabled = false;
+                    banner('Network error.');
                 });
             });
         });
     }
 
+    // Disable uses an inline confirmation (no browser modal): unchecking the
+    // toggle reveals "Remove / Cancel" controls rendered alongside it.
     function bindToggleOff() {
         document.querySelectorAll('.uptimeify-monitor-toggle').forEach(function (toggle) {
             toggle.addEventListener('change', function () {
-                if (toggle.checked) { return; }
-                var domain = toggle.getAttribute('data-domain');
-                var website = toggle.getAttribute('data-website');
-                if (!window.confirm('Delete the uptimeify monitor for ' + domain + '? This is irreversible.')) {
-                    toggle.checked = true;
-                    return;
+                var cell = toggle.closest('td');
+                var active = cell.querySelector('.uptimeify-active');
+                var confirm = cell.querySelector('.uptimeify-confirm');
+                if (!active || !confirm) { return; }
+                if (!toggle.checked) {
+                    active.style.display = 'none';
+                    confirm.style.display = '';
                 }
+            });
+        });
+
+        document.querySelectorAll('.uptimeify-confirm-no').forEach(function (no) {
+            no.addEventListener('click', function () {
+                var cell = no.closest('td');
+                var toggle = cell.querySelector('.uptimeify-monitor-toggle');
+                cell.querySelector('.uptimeify-active').style.display = '';
+                cell.querySelector('.uptimeify-confirm').style.display = 'none';
+                if (toggle) { toggle.checked = true; }
+            });
+        });
+
+        document.querySelectorAll('.uptimeify-confirm-yes').forEach(function (yes) {
+            yes.addEventListener('click', function () {
+                yes.disabled = true;
                 post(window.UPTIMEIFY.disableUrl, {
-                    domain: domain,
-                    websitePublicId: website
+                    domain: yes.getAttribute('data-domain'),
+                    websitePublicId: yes.getAttribute('data-website')
                 }).then(function (res) {
-                    if (res.success) {
-                        window.location.reload();
-                    } else {
-                        toggle.checked = true;
-                        notify(res.message || 'Failed to disable monitoring.', true);
+                    if (!handled(res)) {
+                        yes.disabled = false;
+                        banner((res && res.message) || 'Request failed.');
                     }
+                }).catch(function () {
+                    yes.disabled = false;
+                    banner('Network error.');
                 });
             });
         });
@@ -120,9 +149,26 @@
         all.addEventListener('change', function () {
             document.querySelectorAll('.uptimeify-select').forEach(function (c) {
                 var row = c.closest('.uptimeify-row');
-                if (row && row.style.display === 'none') { return; } // skip filtered-out rows
+                if (row && row.style.display === 'none') { return; }
                 c.checked = all.checked;
             });
+        });
+    }
+
+    function runSync(btn, params) {
+        btn.disabled = true;
+        var original = btn.textContent;
+        btn.textContent = '…';
+        send(btn.getAttribute('data-url'), params).then(function (res) {
+            if (!handled(res)) {
+                btn.disabled = false;
+                btn.textContent = original;
+                banner((res && res.message) || 'Sync failed.');
+            }
+        }).catch(function () {
+            btn.disabled = false;
+            btn.textContent = original;
+            banner('Network error.');
         });
     }
 
@@ -132,25 +178,12 @@
         btn.addEventListener('click', function () {
             var domains = selectedDomains();
             if (!domains.length) {
-                notify('Please select at least one domain.', true);
+                banner(window.UPTIMEIFY.i18n.selectFirst);
                 return;
             }
-            if (!window.confirm('Sync ' + domains.length + ' selected domain(s)?')) { return; }
-            btn.disabled = true;
             var params = new URLSearchParams();
             domains.forEach(function (d) { params.append('domains[]', d); });
-            send(btn.getAttribute('data-url'), params).then(function (res) {
-                btn.disabled = false;
-                if (res.success) {
-                    var s = res.summary || {};
-                    if (s.errors && s.errors.length) {
-                        window.alert(summaryText(s) + '\n\nIssues:\n- ' + s.errors.join('\n- '));
-                    }
-                    window.location.reload();
-                } else {
-                    notify(res.message || 'Sync failed.', true);
-                }
-            });
+            runSync(btn, params);
         });
     }
 
@@ -158,25 +191,7 @@
         var btn = document.getElementById('uptimeify-sync-all');
         if (!btn) { return; }
         btn.addEventListener('click', function () {
-            btn.disabled = true;
-            var original = btn.textContent;
-            btn.textContent = '…';
-            post(btn.getAttribute('data-url'), {}).then(function (res) {
-                btn.disabled = false;
-                btn.textContent = original;
-                if (res.success) {
-                    var s = res.summary || {};
-                    var msg = 'Customers created: ' + (s.customersCreated || 0) +
-                        ', monitors created: ' + (s.websitesCreated || 0);
-                    if (s.errors && s.errors.length) {
-                        msg += '\n\nIssues:\n- ' + s.errors.join('\n- ');
-                        window.alert(msg);
-                    }
-                    window.location.reload();
-                } else {
-                    notify(res.message || 'Sync failed.', true);
-                }
-            });
+            runSync(btn, new URLSearchParams());
         });
     }
 

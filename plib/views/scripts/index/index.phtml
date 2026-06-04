@@ -66,13 +66,26 @@ $loadError      = $this->loadError ?? null;
                 <td><?= $this->escape($row['status'] ?? '—') ?></td>
                 <td>
                     <?php if ($row['monitored']): ?>
-                        <label>
-                            <input type="checkbox" checked
-                                   class="uptimeify-monitor-toggle"
-                                   data-domain="<?= $this->escape($row['domain']) ?>"
-                                   data-website="<?= $this->escape($row['websitePublicId'] ?? '') ?>">
-                            <?= $this->escape($this->lmsg('dashboard.active')) ?>
-                        </label>
+                        <span class="uptimeify-active">
+                            <label>
+                                <input type="checkbox" checked
+                                       class="uptimeify-monitor-toggle"
+                                       data-domain="<?= $this->escape($row['domain']) ?>"
+                                       data-website="<?= $this->escape($row['websitePublicId'] ?? '') ?>">
+                                <?= $this->escape($this->lmsg('dashboard.active')) ?>
+                            </label>
+                        </span>
+                        <span class="uptimeify-confirm" style="display:none">
+                            <?= $this->escape($this->lmsg('dashboard.removeConfirm')) ?>
+                            <button type="button" class="btn uptimeify-confirm-yes"
+                                    data-domain="<?= $this->escape($row['domain']) ?>"
+                                    data-website="<?= $this->escape($row['websitePublicId'] ?? '') ?>">
+                                <?= $this->escape($this->lmsg('dashboard.remove')) ?>
+                            </button>
+                            <button type="button" class="btn uptimeify-confirm-no">
+                                <?= $this->escape($this->lmsg('dashboard.cancel')) ?>
+                            </button>
+                        </span>
                     <?php else: ?>
                         <span class="uptimeify-enable">
                             <select class="uptimeify-customer" title="<?= $this->escape($this->lmsg('dashboard.colCustomer')) ?>">
@@ -117,6 +130,9 @@ $loadError      = $this->loadError ?? null;
     window.UPTIMEIFY = {
         enableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'enable')) ?>,
         disableUrl: <?= json_encode(pm_Context::getActionUrl('index', 'disable')) ?>,
-        syncSelectedUrl: <?= json_encode(pm_Context::getActionUrl('index', 'sync-selected')) ?>
+        syncSelectedUrl: <?= json_encode(pm_Context::getActionUrl('index', 'sync-selected')) ?>,
+        i18n: {
+            selectFirst: <?= json_encode($this->lmsg('dashboard.selectFirst')) ?>
+        }
     };
 </script>

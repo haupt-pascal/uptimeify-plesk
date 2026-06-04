@@ -60,31 +60,24 @@ class IndexController extends pm_Controller_Action
     {
         $this->_forbidGet();
 
-        $domain   = (string) $this->_getParam('domain');
-        $choice   = (string) $this->_getParam('customerChoice') ?: 'auto';
-        $package  = (string) $this->_getParam('packageType');
+        $domain  = (string) $this->_getParam('domain');
+        $choice  = (string) $this->_getParam('customerChoice') ?: 'auto';
+        $package = (string) $this->_getParam('packageType');
 
         if ($domain === '') {
-            $this->_helper->json(['success' => false, 'message' => $this->lmsg('error.missingParams')]);
-            return;
+            $this->_status->addMessage('error', $this->lmsg('error.missingParams'));
+        } else {
+            try {
+                Modules_Uptimeify_Sync_DomainSyncService::create()->enable($domain, $choice, $package !== '' ? $package : null);
+                $this->_status->addMessage('info', $this->lmsg('dashboard.enabled', ['domain' => $domain]));
+            } catch (Modules_Uptimeify_Api_Exception_QuotaExceededException) {
+                $this->_status->addMessage('error', $this->lmsg('error.quota'));
+            } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+                $this->_status->addMessage('error', $e->getMessage());
+            }
         }
 
-        try {
-            Modules_Uptimeify_Sync_DomainSyncService::create()->enable($domain, $choice, $package !== '' ? $package : null);
-            $this->_helper->json([
-                'success' => true,
-                'message' => $this->lmsg('dashboard.enabled', ['domain' => $domain]),
-            ]);
-        } catch (Modules_Uptimeify_Api_Exception_QuotaExceededException) {
-            $this->_helper->json([
-                'success'    => false,
-                'quota'      => true,
-                'upgradeUrl' => 'https://uptimeify.io',
-                'message'    => $this->lmsg('error.quota'),
-            ]);
-        } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
-            $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
-        }
+        $this->_helper->json(['reload' => true]);
     }
 
     /**
@@ -98,19 +91,17 @@ class IndexController extends pm_Controller_Action
         $website = (string) $this->_getParam('websitePublicId');
 
         if ($domain === '' || $website === '') {
-            $this->_helper->json(['success' => false, 'message' => $this->lmsg('error.missingParams')]);
-            return;
+            $this->_status->addMessage('error', $this->lmsg('error.missingParams'));
+        } else {
+            try {
+                Modules_Uptimeify_Sync_DomainSyncService::create()->disable($domain, $website);
+                $this->_status->addMessage('info', $this->lmsg('dashboard.disabled', ['domain' => $domain]));
+            } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+                $this->_status->addMessage('error', $e->getMessage());
+            }
         }
 
-        try {
-            Modules_Uptimeify_Sync_DomainSyncService::create()->disable($domain, $website);
-            $this->_helper->json([
-                'success' => true,
-                'message' => $this->lmsg('dashboard.disabled', ['domain' => $domain]),
-            ]);
-        } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
-            $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
-        }
+        $this->_helper->json(['reload' => true]);
     }
 
     /**
@@ -121,11 +112,12 @@ class IndexController extends pm_Controller_Action
         $this->_forbidGet();
 
         try {
-            $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->mirrorAndSyncAll();
-            $this->_helper->json(['success' => true, 'summary' => $summary]);
+            $this->reportSummary(Modules_Uptimeify_Sync_DomainSyncService::create()->mirrorAndSyncAll());
         } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
-            $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
+            $this->_status->addMessage('error', $e->getMessage());
         }
+
+        $this->_helper->json(['reload' => true]);
     }
 
     /**
@@ -139,22 +131,36 @@ class IndexController extends pm_Controller_Action
         $domains = is_array($domains) ? array_values(array_filter(array_map('strval', $domains), 'strlen')) : [];
 
         if (!$domains) {
-            $this->_helper->json(['success' => false, 'message' => $this->lmsg('error.missingParams')]);
-            return;
+            $this->_status->addMessage('error', $this->lmsg('error.missingParams'));
+        } else {
+            try {
+                $this->reportSummary(Modules_Uptimeify_Sync_DomainSyncService::create()->syncSelected($domains));
+            } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+                $this->_status->addMessage('error', $e->getMessage());
+            }
         }
 
-        try {
-            $summary = Modules_Uptimeify_Sync_DomainSyncService::create()->syncSelected($domains);
-            $this->_helper->json(['success' => true, 'summary' => $summary]);
-        } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
-            $this->_helper->json(['success' => false, 'message' => $e->getMessage()]);
+        $this->_helper->json(['reload' => true]);
+    }
+
+    /**
+     * @param array{customersCreated:int, websitesCreated:int, skipped:int, errors:list<string>} $summary
+     */
+    private function reportSummary(array $summary): void
+    {
+        $this->_status->addMessage('info', $this->lmsg('dashboard.syncResult', [
+            'customers' => (string) $summary['customersCreated'],
+            'monitors'  => (string) $summary['websitesCreated'],
+        ]));
+        foreach ($summary['errors'] as $error) {
+            $this->_status->addMessage('warning', $error);
         }
     }
 
     private function _forbidGet(): void
     {
         if (!$this->getRequest()->isPost()) {
-            $this->_helper->json(['success' => false, 'message' => 'POST required']);
+            $this->_helper->json(['reload' => false, 'message' => 'POST required']);
         }
     }
 }
