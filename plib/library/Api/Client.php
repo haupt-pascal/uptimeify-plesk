@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 class Modules_Uptimeify_Api_Client
 {
     private const BASE_URL = 'https://uptimeify.io';
-    private const TIMEOUT  = 5.0;
+    private const TIMEOUT  = 10.0;
 
     private GuzzleClient $http;
 
@@ -207,7 +207,7 @@ class Modules_Uptimeify_Api_Client
             $response = $this->http->request($method, $path, $options);
         } catch (ConnectException $e) {
             throw new Modules_Uptimeify_Api_Exception_ApiException(
-                'Could not reach uptimeify.io (timeout/connection error).',
+                'Could not reach uptimeify.io: ' . $e->getMessage(),
                 0,
                 $e,
             );
