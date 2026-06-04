@@ -5,6 +5,13 @@ $customers      = $this->customers ?? [];
 $packages       = $this->packages ?? [];
 $defaultPackage = (string) ($this->defaultPackage ?? '');
 $loadError      = $this->loadError ?? null;
+
+$statusLabels = [
+    'active'      => $this->lmsg('dashboard.statusActive'),
+    'inactive'    => $this->lmsg('dashboard.statusInactive'),
+    'paused'      => $this->lmsg('dashboard.statusInactive'),
+    'maintenance' => $this->lmsg('dashboard.statusMaintenance'),
+];
 ?>
 <div class="uptimeify-dashboard">
     <p>
@@ -63,7 +70,10 @@ $loadError      = $this->loadError ?? null;
                         —
                     <?php endif; ?>
                 </td>
-                <td><?= $this->escape($row['status'] ?? '—') ?></td>
+                <td>
+                    <?php $st = (string) ($row['status'] ?? ''); ?>
+                    <?= $st !== '' ? $this->escape($statusLabels[$st] ?? $st) : '—' ?>
+                </td>
                 <td>
                     <?php if ($row['monitored']): ?>
                         <span class="uptimeify-active">

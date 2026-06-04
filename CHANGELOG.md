@@ -6,6 +6,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-06-04
+
+### Changed
+- The dashboard **status is now localized** (e.g. "Aktiv" instead of the raw API
+  "active").
+
 ## [1.3.2] - 2026-06-04
 
 ### Changed
@@ -197,7 +203,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.2.4...v1.3.0
