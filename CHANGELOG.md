@@ -6,9 +6,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-> Service-plan level filtering was evaluated and intentionally **not** pursued:
-> Plesk plan names are not unique (scoped per provider) and the domain→plan
-> mapping requires fragile XML-RPC. Customer-level filtering covers the need.
+## [1.5.1] - 2026-06-05
+
+### Fixed
+- **Filter tab was unreachable**: Plesk's native tab bar does not render in this
+  setup, so the Dashboard/Filter/Settings navigation is now an explicit link bar
+  shown at the top of every page.
+
+### Notes
+- Service-plan level filtering was evaluated and intentionally **not** pursued:
+  Plesk plan names are not unique (scoped per provider) and the domain→plan
+  mapping requires fragile XML-RPC. Customer-level filtering covers the need.
 
 ## [1.5.0] - 2026-06-05
 
@@ -244,7 +252,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.2...v1.5.0
 [1.4.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.0...v1.4.1

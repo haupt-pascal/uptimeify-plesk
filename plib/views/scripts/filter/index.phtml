@@ -2,6 +2,14 @@
 /** @var Zend_View $this */
 ?>
 <div class="uptimeify-filter-tab">
+    <p class="uptimeify-nav">
+        <a href="<?= $this->escape(pm_Context::getActionUrl('index', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.dashboard')) ?></a>
+        &nbsp;|&nbsp;
+        <strong><?= $this->escape($this->lmsg('tabs.filter')) ?></strong>
+        &nbsp;|&nbsp;
+        <a href="<?= $this->escape(pm_Context::getActionUrl('settings', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.settings')) ?></a>
+    </p>
+
     <h3><?= $this->escape($this->lmsg('filter.title')) ?></h3>
     <p><?= $this->escape($this->lmsg('filter.intro')) ?></p>
 

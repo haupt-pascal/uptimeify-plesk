@@ -3,6 +3,15 @@
 $connected = (bool) ($this->connected ?? false);
 $orgName   = (string) ($this->orgName ?? '');
 ?>
+<?php if ($connected): ?>
+    <p class="uptimeify-nav">
+        <a href="<?= $this->escape(pm_Context::getActionUrl('index', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.dashboard')) ?></a>
+        &nbsp;|&nbsp;
+        <a href="<?= $this->escape(pm_Context::getActionUrl('filter', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.filter')) ?></a>
+        &nbsp;|&nbsp;
+        <strong><?= $this->escape($this->lmsg('tabs.settings')) ?></strong>
+    </p>
+<?php endif; ?>
 <?php if (!$connected): ?>
     <h3><?= $this->escape($this->lmsg('settings.step1Title')) ?></h3>
     <p><?= $this->escape($this->lmsg('settings.step1Intro')) ?></p>

@@ -14,6 +14,14 @@ $statusLabels = [
 ];
 ?>
 <div class="uptimeify-dashboard">
+    <p class="uptimeify-nav">
+        <strong><?= $this->escape($this->lmsg('tabs.dashboard')) ?></strong>
+        &nbsp;|&nbsp;
+        <a href="<?= $this->escape(pm_Context::getActionUrl('filter', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.filter')) ?></a>
+        &nbsp;|&nbsp;
+        <a href="<?= $this->escape(pm_Context::getActionUrl('settings', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.settings')) ?></a>
+    </p>
+
     <p>
         <strong><?= $this->escape($this->organizationName ?: '') ?></strong>
         &nbsp;
@@ -25,9 +33,6 @@ $statusLabels = [
                 data-url="<?= $this->escape(pm_Context::getActionUrl('index', 'sync')) ?>">
             <?= $this->escape($this->lmsg('dashboard.syncAll')) ?>
         </button>
-        <a class="btn" href="<?= $this->escape(pm_Context::getActionUrl('settings', 'index')) ?>">
-            <?= $this->escape($this->lmsg('dashboard.openSettings')) ?>
-        </a>
         <span class="hint"><?= $this->escape($this->lmsg('dashboard.syncAllHint')) ?></span>
     </p>
 
