@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-06-05
+
+### Fixed
+- **Home widget still not shown**: Plesk requires the exact class name
+  `Modules_<Id>_Promo_AdminHome` in `plib/library/Promo/AdminHome.php` (per the
+  official docs). Renamed from `Promo_Home` so Plesk auto-loads it.
+
 ## [1.6.2] - 2026-06-05
 
 ### Fixed
@@ -277,7 +284,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...HEAD
+[1.6.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...v1.6.0

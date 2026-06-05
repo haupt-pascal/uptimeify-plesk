@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-class Modules_Uptimeify_Promo_Home extends pm_Promo_AdminHome
+class Modules_Uptimeify_Promo_AdminHome extends pm_Promo_AdminHome
 {
     private const MODULE = 'uptimeify';
 
