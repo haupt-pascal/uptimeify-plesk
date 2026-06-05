@@ -14,12 +14,6 @@ class Modules_Uptimeify_Promo_AdminHome extends pm_Promo_AdminHome
 {
     private const MODULE = 'uptimeify';
 
-    public function isActive(): bool
-    {
-        pm_Context::init(self::MODULE);
-        return Modules_Uptimeify_Settings::hasApiToken() && Modules_Uptimeify_Settings::isValidated();
-    }
-
     public function getTitle(): string
     {
         pm_Context::init(self::MODULE);

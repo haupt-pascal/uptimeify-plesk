@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-06-05
+
+### Fixed
+- Home widget: removed the custom isActive() override (not part of the documented
+  API) which could hide the promo; it now always renders, matching the canonical
+  Plesk example.
+
 ## [1.6.3] - 2026-06-05
 
 ### Fixed
@@ -284,7 +291,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...HEAD
+[1.6.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...v1.6.1
