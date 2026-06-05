@@ -6,6 +6,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-06-05
+
+### Fixed
+- Add return types to the home-widget promo methods so PHPStan passes (no
+  functional change over 1.6.0).
+
 ## [1.6.0] - 2026-06-05
 
 ### Added
@@ -264,7 +270,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.2...v1.5.0
