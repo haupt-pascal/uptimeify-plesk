@@ -6,6 +6,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+- Planned: service-plan level filtering (pending server verification of plan
+  lookup via `pm_ApiRpc`).
+
+## [1.5.0] - 2026-06-05
+
+### Added
+- **Filter tab with customer black/whitelist.** A new "Filter" tab lets you choose
+  a mode (blacklist = sync all except excluded, or whitelist = sync only included)
+  and set each Plesk customer to Default / Always sync / Never sync.
+- Auto-sync, bulk sync and the dashboard now respect the filter; excluded
+  customers' domains are hidden from the dashboard with a count + link to Filter.
+- Precedence: domain "Ignore" > customer filter > mode default.
+
 ## [1.4.2] - 2026-06-04
 
 ### Changed
@@ -230,7 +243,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.2...v1.5.0
 [1.4.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.3.3...v1.4.0

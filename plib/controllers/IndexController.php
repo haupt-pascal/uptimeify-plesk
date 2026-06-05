@@ -17,6 +17,7 @@ class IndexController extends pm_Controller_Action
 
         $this->view->tabs = [
             ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],
+            ['title' => $this->lmsg('tabs.filter'), 'action' => 'index', 'controller' => 'filter'],
             ['title' => $this->lmsg('tabs.settings'), 'action' => 'index', 'controller' => 'settings'],
         ];
     }
@@ -35,10 +36,22 @@ class IndexController extends pm_Controller_Action
 
         try {
             $service = Modules_Uptimeify_Sync_DomainSyncService::create();
-            $this->view->rows      = $service->getDashboardRows();
-            $this->view->customers = $service->listCustomerChoices();
-            $this->view->packages  = Modules_Uptimeify_Api_Client::fromSettings()->listPackageConfigs();
-            $this->view->loadError = null;
+
+            $visible     = [];
+            $filteredOut = 0;
+            foreach ($service->getDashboardRows() as $row) {
+                if (!$row['monitored'] && !empty($row['excludedByFilter'])) {
+                    $filteredOut++;
+                    continue;
+                }
+                $visible[] = $row;
+            }
+
+            $this->view->rows        = $visible;
+            $this->view->filteredOut = $filteredOut;
+            $this->view->customers   = $service->listCustomerChoices();
+            $this->view->packages    = Modules_Uptimeify_Api_Client::fromSettings()->listPackageConfigs();
+            $this->view->loadError   = null;
         } catch (Modules_Uptimeify_Api_Exception_UnauthorizedException) {
             $this->view->rows      = [];
             $this->view->customers = [];

@@ -35,6 +35,13 @@ $statusLabels = [
         <div class="msg-box msg-error"><div class="msg-content"><?= $this->escape($loadError) ?></div></div>
     <?php endif; ?>
 
+    <?php if (!empty($this->filteredOut)): ?>
+        <p class="hint">
+            <?= $this->escape($this->lmsg('dashboard.filteredOut', ['count' => (string) $this->filteredOut])) ?>
+            <a href="<?= $this->escape(pm_Context::getActionUrl('filter', 'index')) ?>"><?= $this->escape($this->lmsg('tabs.filter')) ?></a>
+        </p>
+    <?php endif; ?>
+
     <p>
         <input type="text" id="uptimeify-filter" size="40"
                placeholder="<?= $this->escape($this->lmsg('dashboard.filter')) ?>">

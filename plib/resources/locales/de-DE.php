@@ -6,7 +6,19 @@ $messages = [
     'pageTitle' => 'Uptimeify Monitoring',
 
     'tabs.dashboard' => 'Dashboard',
+    'tabs.filter'    => 'Filter',
     'tabs.settings'  => 'Einstellungen',
+
+    'filter.title'         => 'Sync-Filter',
+    'filter.intro'         => 'Lege fest, welche Plesk-Kunden synchronisiert werden. Kunden-Einstellungen überschreiben den Modus; das Domain-„Ignorieren" sticht weiterhin alles.',
+    'filter.mode'          => 'Modus',
+    'filter.modeHint'      => 'Blacklist synct alle außer ausgeschlossenen Kunden; Whitelist synct nur freigegebene Kunden.',
+    'filter.modeBlacklist' => 'Alles außer Ausgeschlossenen syncen (Blacklist)',
+    'filter.modeWhitelist' => 'Nur Ausgewählte syncen (Whitelist)',
+    'filter.stateDefault'  => 'Standard (folgt Modus)',
+    'filter.stateSync'     => 'Immer syncen',
+    'filter.stateSkip'     => 'Nie syncen',
+    'filter.saved'         => 'Filter gespeichert.',
 
     'dashboard.notConnected'  => 'Hinterlege deinen uptimeify.io API-Token, um zu starten.',
     'dashboard.syncAll'       => 'Alles spiegeln & synchronisieren',
@@ -14,6 +26,7 @@ $messages = [
     'dashboard.selectAll'     => 'Alle auswählen',
     'dashboard.syncAllHint'   => 'Legt pro Plesk-Kunde einen uptimeify-Customer an (falls fehlend) und einen Monitor pro Domain.',
     'dashboard.openSettings'  => 'Einstellungen',
+    'dashboard.filteredOut'   => '%%count%% Domain(s) ausgeschlossener Kunden ausgeblendet — verwalten unter',
     'dashboard.colOwner'      => 'Plesk-Kunde',
     'dashboard.autoCustomer'  => 'Auto: %%owner%%',
     'dashboard.filter'        => 'Domains filtern…',

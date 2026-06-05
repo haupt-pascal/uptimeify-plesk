@@ -1,0 +1,13 @@
+<?php
+/** @var Zend_View $this */
+?>
+<div class="uptimeify-filter-tab">
+    <h3><?= $this->escape($this->lmsg('filter.title')) ?></h3>
+    <p><?= $this->escape($this->lmsg('filter.intro')) ?></p>
+
+    <?php if (!empty($this->customerless)): ?>
+        <p><?= $this->escape($this->lmsg('dashboard.noDomains')) ?></p>
+    <?php endif; ?>
+
+    <?= $this->form ?>
+</div>

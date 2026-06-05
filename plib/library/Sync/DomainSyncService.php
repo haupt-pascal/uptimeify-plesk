@@ -68,6 +68,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
                 'ignored'          => $ignored,
                 'preview'          => $preview,
                 'skip'             => $ignored || $preview,
+                'excludedByFilter' => $this->isExcludedByFilter((int) $domain['clientId']),
                 'websitePublicId'  => $monitor['publicId'] ?? ($map['websitePublicId'] ?? null),
                 'status'           => $monitor['status'] ?? null,
                 'monitoringType'   => $monitor['monitoringType'] ?? null,
@@ -86,6 +87,22 @@ class Modules_Uptimeify_Sync_DomainSyncService
     public static function isPreviewDomain(string $name): bool
     {
         return str_ends_with(strtolower($name), '.plesk.page');
+    }
+
+    /**
+     * Whether a domain's customer is excluded by the black/whitelist filter.
+     * Precedence: an explicit per-customer state wins over the mode default.
+     */
+    private function isExcludedByFilter(int $clientId): bool
+    {
+        $state = Modules_Uptimeify_Settings::getCustomerState($clientId);
+        if ($state === 'skip') {
+            return true;
+        }
+        if ($state === 'sync') {
+            return false;
+        }
+        return Modules_Uptimeify_Settings::getFilterMode() === 'whitelist';
     }
 
     /**
@@ -199,7 +216,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
         $packageType = Modules_Uptimeify_Settings::getDefaultPackageType();
 
         foreach ($rows as $row) {
-            if ($row['monitored'] || !empty($row['skip'])) {
+            if ($row['monitored'] || !empty($row['skip']) || !empty($row['excludedByFilter'])) {
                 $summary['skipped']++;
                 continue;
             }

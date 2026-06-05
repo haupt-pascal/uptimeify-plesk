@@ -25,6 +25,8 @@ class Modules_Uptimeify_Settings
     public const KEY_MAPPING         = 'domainMapping';
     public const KEY_CLIENT_MAP      = 'clientCustomerMap';
     public const KEY_IGNORED         = 'ignoredDomains';
+    public const KEY_FILTER_MODE     = 'filterMode';
+    public const KEY_CUSTOMER_FILTER = 'customerFilter';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
     public const KEY_SYNC_INTERVAL   = 'syncInterval';
 
@@ -298,5 +300,60 @@ class Modules_Uptimeify_Settings
     private static function saveIgnored(array $set): void
     {
         pm_Settings::set(self::KEY_IGNORED, json_encode(array_keys($set), JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Sync filter mode: 'blacklist' (sync all except excluded) or 'whitelist'
+     * (sync only included).
+     */
+    public static function getFilterMode(): string
+    {
+        return pm_Settings::get(self::KEY_FILTER_MODE, 'blacklist') === 'whitelist' ? 'whitelist' : 'blacklist';
+    }
+
+    public static function setFilterMode(string $mode): void
+    {
+        pm_Settings::set(self::KEY_FILTER_MODE, $mode === 'whitelist' ? 'whitelist' : 'blacklist');
+    }
+
+    /**
+     * Per Plesk client filter state: clientId => 'sync' (always) | 'skip' (never).
+     * A missing entry means "default" (follow the mode).
+     *
+     * @return array<string, string>
+     */
+    public static function getCustomerFilter(): array
+    {
+        $raw = (string) pm_Settings::get(self::KEY_CUSTOMER_FILTER, '');
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $out = [];
+        foreach ($decoded as $clientId => $state) {
+            if (is_string($state) && ($state === 'sync' || $state === 'skip')) {
+                $out[(string) $clientId] = $state;
+            }
+        }
+        return $out;
+    }
+
+    public static function getCustomerState(int $clientId): string
+    {
+        return self::getCustomerFilter()[(string) $clientId] ?? 'default';
+    }
+
+    public static function setCustomerState(int $clientId, string $state): void
+    {
+        $map = self::getCustomerFilter();
+        if ($state === 'sync' || $state === 'skip') {
+            $map[(string) $clientId] = $state;
+        } else {
+            unset($map[(string) $clientId]);
+        }
+        pm_Settings::set(self::KEY_CUSTOMER_FILTER, json_encode($map, JSON_THROW_ON_ERROR));
     }
 }
