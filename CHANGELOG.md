@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-06-05
+
+### Fixed
+- **Home widget did not appear.** It needed no pm_Hook_Promos wrapper (Plesk
+  discovers pm_Promo_AdminHome subclasses directly) and each promo method must
+  call pm_Context::init() first, since promos run outside the extension context.
+
 ## [1.6.1] - 2026-06-05
 
 ### Fixed
@@ -270,7 +277,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...HEAD
+[1.6.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...v1.5.1

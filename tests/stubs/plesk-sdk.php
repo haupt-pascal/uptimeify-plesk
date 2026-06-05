@@ -45,6 +45,10 @@ if (!class_exists('pm_Context')) {
         {
             return '';
         }
+
+        public static function init(string $moduleId): void
+        {
+        }
     }
 }
 
