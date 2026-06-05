@@ -6,6 +6,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-06-05
+
+### Added
+- **Home page widget (new SPV dashboard)** via `Plesk\SDK\Hook\Home`: a status
+  block (`plib/hooks/Home.php` + `Modules_Uptimeify_Hook_StatusBlock`) showing
+  the cached monitoring status and a link into Uptimeify. Works on Plesk 18.0.60+.
+
+### Removed
+- The legacy `pm_Promo_AdminHome` widget, which is not rendered by the new
+  personalised dashboard in current Plesk.
+
 ## [1.6.4] - 2026-06-05
 
 ### Fixed
@@ -291,7 +302,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...v1.7.0
 [1.6.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.1...v1.6.2

@@ -52,6 +52,17 @@ if (!class_exists('pm_Context')) {
     }
 }
 
+if (!class_exists('pm_Locale')) {
+    class pm_Locale
+    {
+        /** @param array<string, string> $params */
+        public static function lmsg(string $key, array $params = []): string
+        {
+            return $key;
+        }
+    }
+}
+
 if (!class_exists('pm_Hook_Promos')) {
     abstract class pm_Hook_Promos
     {

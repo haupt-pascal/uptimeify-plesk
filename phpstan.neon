@@ -6,4 +6,5 @@ parameters:
         - tests
     scanFiles:
         - tests/stubs/plesk-sdk.php
+        - tests/stubs/plesk-sdk-ns.php
     treatPhpDocTypesAsCertain: false
