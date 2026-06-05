@@ -25,8 +25,12 @@ REST API over HTTPS.
   extension shows a clear upgrade prompt instead of failing.
 - **Optional blacklist monitoring** — register your server IP for DNSBL checks
   (requires the DNSBL add-on on your uptimeify plan).
-- **At-a-glance health** — a Plesk home-page widget summarizes whether all
-  monitored sites are nominal or some are down.
+- **At-a-glance health on the Plesk home page** — two status widgets, no extra
+  clicks: one for *this* server (how many of its domains are monitored and
+  online, and any that need attention) and one for your whole uptimeify account
+  (total monitors, sites needing attention, open incidents).
+- **White-label** — set your own brand name and it replaces “Uptimeify” in the
+  home-page widgets and page titles, so the panel matches your hosting brand.
 
 ### How packages work
 
