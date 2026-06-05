@@ -15,3 +15,6 @@ internal/
 *.swp
 .idea/
 .vscode/
+
+# AI slop
+CLAUDE.md
