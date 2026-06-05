@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Plesk Home page (SPV dashboard) hook — registers the uptimeify status block.
+ * Plesk Home page (SPV dashboard) hook — registers the uptimeify status blocks
+ * (this server first, then the account-wide overview).
  * Available since Plesk Obsidian 18.0.60.
  */
 
@@ -13,6 +14,9 @@ return new class () extends \Plesk\SDK\Hook\Home {
      */
     public function getBlocks(): array
     {
-        return [new \Modules_Uptimeify_Hook_StatusBlock()];
+        return [
+            new \Modules_Uptimeify_Hook_ServerStatusBlock(),
+            new \Modules_Uptimeify_Hook_StatusBlock(),
+        ];
     }
 };

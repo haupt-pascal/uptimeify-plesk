@@ -79,9 +79,48 @@ class DomainSyncServiceTest extends TestCase
         self::assertSame(2, \Modules_Uptimeify_Settings::getStatusIncidents());
     }
 
+    public function testDashboardCachesServerScopedStatus(): void
+    {
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        // Org has many monitors; only one of them is on THIS server.
+        $api->method('listWebsites')->willReturn([
+            ['publicId' => 'w1', 'url' => 'https://acme.example', 'status' => 'down'],
+            ['publicId' => 'w2', 'url' => 'https://elsewhere.example', 'status' => 'down'],
+            ['publicId' => 'w3', 'url' => 'https://another.example', 'status' => 'active'],
+        ]);
+        $api->method('listCustomers')->willReturn([]);
+        // One open incident on a server domain, one on a foreign domain, one resolved.
+        $api->method('listIncidents')->willReturn([
+            ['id' => 1, 'status' => 'open', 'website' => ['url' => 'https://acme.example']],
+            ['id' => 2, 'status' => 'open', 'website' => ['url' => 'https://elsewhere.example']],
+            ['id' => 3, 'status' => 'resolved', 'website' => ['url' => 'https://acme.example']],
+        ]);
+
+        $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
+        $domains->method('all')->willReturn([
+            ['name' => 'acme.example', 'displayName' => 'acme.example', 'displayUrl' => 'https://acme.example', 'ip' => '', 'clientId' => 1, 'clientName' => 'Acme', 'clientEmail' => 'a@acme.example'],
+            ['name' => 'unmonitored.example', 'displayName' => 'unmonitored.example', 'displayUrl' => 'https://unmonitored.example', 'ip' => '', 'clientId' => 2, 'clientName' => 'Beta', 'clientEmail' => 'b@beta.example'],
+        ]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);
+        $service->getDashboardRows();
+
+        // Account-wide: 3 monitors, 2 down, 2 open incidents.
+        self::assertSame(3, \Modules_Uptimeify_Settings::getStatusTotal());
+        self::assertSame(2, \Modules_Uptimeify_Settings::getStatusDown());
+        self::assertSame(2, \Modules_Uptimeify_Settings::getStatusIncidents());
+
+        // This server: 2 domains, 1 monitored, that one needs attention, 1 incident.
+        self::assertSame(2, \Modules_Uptimeify_Settings::getServerTotal());
+        self::assertSame(1, \Modules_Uptimeify_Settings::getServerMonitored());
+        self::assertSame(1, \Modules_Uptimeify_Settings::getServerAttention());
+        self::assertSame(1, \Modules_Uptimeify_Settings::getServerIncidents());
+    }
+
     public function testIncidentFailureKeepsLastCachedCount(): void
     {
         \Modules_Uptimeify_Settings::setStatus(0, 5, 7);
+        \Modules_Uptimeify_Settings::setServerStatus(3, 2, 0, 4);
 
         $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
         $api->method('listWebsites')->willReturn([]);
@@ -96,8 +135,9 @@ class DomainSyncServiceTest extends TestCase
         $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);
         $service->getDashboardRows();
 
-        // The best-effort incident count must not be wiped on API error.
+        // The best-effort incident counts must not be wiped on API error.
         self::assertSame(7, \Modules_Uptimeify_Settings::getStatusIncidents());
+        self::assertSame(4, \Modules_Uptimeify_Settings::getServerIncidents());
     }
 
     public function testBrandNameDefaultsToUptimeify(): void

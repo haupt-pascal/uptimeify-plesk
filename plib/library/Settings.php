@@ -30,6 +30,10 @@ class Modules_Uptimeify_Settings
     public const KEY_STATUS_DOWN     = 'statusDown';
     public const KEY_STATUS_TOTAL    = 'statusTotal';
     public const KEY_STATUS_INCIDENTS = 'statusIncidents';
+    public const KEY_SERVER_TOTAL     = 'serverTotal';
+    public const KEY_SERVER_MONITORED = 'serverMonitored';
+    public const KEY_SERVER_ATTENTION = 'serverAttention';
+    public const KEY_SERVER_INCIDENTS = 'serverIncidents';
     public const KEY_BRAND_NAME      = 'brandName';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
     public const KEY_SYNC_INTERVAL   = 'syncInterval';
@@ -375,6 +379,38 @@ class Modules_Uptimeify_Settings
     public static function getStatusIncidents(): int
     {
         return (int) pm_Settings::get(self::KEY_STATUS_INCIDENTS, '0');
+    }
+
+    /**
+     * Cached status scoped to THIS Plesk server only (its hosting domains and
+     * their monitors) — drives the per-server home-page widget.
+     */
+    public static function setServerStatus(int $total, int $monitored, int $attention, int $incidents): void
+    {
+        pm_Settings::set(self::KEY_SERVER_TOTAL, (string) $total);
+        pm_Settings::set(self::KEY_SERVER_MONITORED, (string) $monitored);
+        pm_Settings::set(self::KEY_SERVER_ATTENTION, (string) $attention);
+        pm_Settings::set(self::KEY_SERVER_INCIDENTS, (string) $incidents);
+    }
+
+    public static function getServerTotal(): int
+    {
+        return (int) pm_Settings::get(self::KEY_SERVER_TOTAL, '-1');
+    }
+
+    public static function getServerMonitored(): int
+    {
+        return (int) pm_Settings::get(self::KEY_SERVER_MONITORED, '0');
+    }
+
+    public static function getServerAttention(): int
+    {
+        return (int) pm_Settings::get(self::KEY_SERVER_ATTENTION, '0');
+    }
+
+    public static function getServerIncidents(): int
+    {
+        return (int) pm_Settings::get(self::KEY_SERVER_INCIDENTS, '0');
     }
 
     /**

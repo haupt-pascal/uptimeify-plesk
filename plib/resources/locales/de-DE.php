@@ -107,4 +107,9 @@ $messages = [
     'widget.statAttention' => 'Brauchen Aufmerksamkeit',
     'widget.statIncidents' => 'Offene Vorfälle',
     'widget.scope'         => 'Über dein gesamtes %%brand%%-Konto.',
+    'widget.serverTitle'   => '%%brand%% — dieser Server',
+    'widget.serverOpen'    => 'Öffne das Dashboard, um die Domains dieses Servers zu synchronisieren.',
+    'widget.serverScope'   => 'Nur Domains auf diesem Plesk-Server.',
+    'widget.statDomains'   => 'Domains',
+    'widget.statMonitored' => 'Überwacht',
 ];

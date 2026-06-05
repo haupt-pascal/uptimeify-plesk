@@ -6,6 +6,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-06-05
+
+### Added
+- **Per-server home-page widget** — a second status block scoped to *this* Plesk
+  server only: domains on the server, how many are monitored, how many need
+  attention (red) and open incidents on this server's domains (red). It sits
+  above the account-wide block, since the server's own health is what the
+  operator cares about most. Both blocks read cached values (no API call on
+  home-page load); server-scoped incidents are matched from the org incident
+  list by website URL.
+
 ## [1.8.0] - 2026-06-05
 
 ### Added
@@ -316,7 +327,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...v1.7.0
 [1.6.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...v1.6.4

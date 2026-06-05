@@ -43,7 +43,6 @@ class Modules_Uptimeify_Sync_DomainSyncService
     public function getDashboardRows(): array
     {
         $websites = $this->api->listWebsites();
-        $this->cacheStatus($websites);
         $monitors = $this->indexMonitorsByUrl($websites);
         $mapping  = Modules_Uptimeify_Settings::getMapping();
         $rows     = [];
@@ -78,6 +77,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
                 'customerPublicId' => $monitor['customerPublicId'] ?? ($existing['publicId'] ?? null),
             ];
         }
+
+        $this->cacheStatus($websites, $rows);
 
         return $rows;
     }
@@ -316,41 +317,101 @@ class Modules_Uptimeify_Sync_DomainSyncService
     }
 
     /**
-     * Cache the monitor count, how many need attention and the number of open
-     * incidents, for the home-page widget.
+     * Cache the home-page widget metrics, in two scopes:
+     *  - account-wide (the whole uptimeify organization: every monitor/incident),
+     *  - this Plesk server only (its hosting domains and their monitors).
+     *
+     * Incidents are fetched once and reused for both. Everything is best-effort:
+     * the widget metrics must never break the dashboard load, so on an incident
+     * API error we keep the last cached incident counts.
      *
      * @param list<array<string, mixed>> $websites
+     * @param list<array<string, mixed>> $rows
      */
-    private function cacheStatus(array $websites): void
+    private function cacheStatus(array $websites, array $rows): void
     {
+        $incidents = $this->fetchIncidents();
+
+        // --- Account-wide (whole uptimeify organization) ---
         $down = 0;
         foreach ($websites as $site) {
-            $status = strtolower((string) ($site['status'] ?? ''));
-            if (in_array($status, ['down', 'inactive', 'paused', 'listed'], true)) {
+            if ($this->needsAttention((string) ($site['status'] ?? ''))) {
                 $down++;
             }
         }
+        $orgIncidents = $incidents === null
+            ? Modules_Uptimeify_Settings::getStatusIncidents()
+            : $this->countOpenIncidents($incidents, null);
+        Modules_Uptimeify_Settings::setStatus($down, count($websites), $orgIncidents);
 
-        Modules_Uptimeify_Settings::setStatus($down, count($websites), $this->countOpenIncidents());
+        // --- This Plesk server only ---
+        $serverTotal     = 0;
+        $serverMonitored = 0;
+        $serverAttention = 0;
+        $serverUrls      = [];
+        foreach ($rows as $row) {
+            if (!empty($row['preview'])) {
+                continue; // *.plesk.page previews are not real domains
+            }
+            $serverTotal++;
+            if (!empty($row['monitored'])) {
+                $serverMonitored++;
+                $serverUrls[$this->normalizeUrl((string) ($row['url'] ?? ''))] = true;
+                if ($this->needsAttention((string) ($row['status'] ?? ''))) {
+                    $serverAttention++;
+                }
+            }
+        }
+        $serverIncidents = $incidents === null
+            ? Modules_Uptimeify_Settings::getServerIncidents()
+            : $this->countOpenIncidents($incidents, $serverUrls);
+        Modules_Uptimeify_Settings::setServerStatus($serverTotal, $serverMonitored, $serverAttention, $serverIncidents);
+    }
+
+    private function needsAttention(string $status): bool
+    {
+        return in_array(strtolower($status), ['down', 'inactive', 'paused', 'listed'], true);
     }
 
     /**
-     * Count open incidents org-wide (best-effort: the widget metric must never
-     * break the dashboard load, so on any API error we keep the last value).
+     * Fetch org-wide incidents, or null when the API call fails (signals the
+     * caller to keep the last cached counts).
+     *
+     * @return list<array<string, mixed>>|null
      */
-    private function countOpenIncidents(): int
+    private function fetchIncidents(): ?array
     {
         try {
-            $open = 0;
-            foreach ($this->api->listIncidents(Modules_Uptimeify_Settings::getOrganizationId()) as $incident) {
-                if (strtolower((string) ($incident['status'] ?? '')) === 'open') {
-                    $open++;
+            return $this->api->listIncidents(Modules_Uptimeify_Settings::getOrganizationId());
+        } catch (Modules_Uptimeify_Api_Exception_ApiException) {
+            return null;
+        }
+    }
+
+    /**
+     * Count open incidents. When $urls is non-null, only incidents whose website
+     * URL is in the set are counted (server scope); null counts all (org scope).
+     *
+     * @param list<array<string, mixed>> $incidents
+     * @param array<string, bool>|null   $urls
+     */
+    private function countOpenIncidents(array $incidents, ?array $urls): int
+    {
+        $open = 0;
+        foreach ($incidents as $incident) {
+            if (strtolower((string) ($incident['status'] ?? '')) !== 'open') {
+                continue;
+            }
+            if ($urls !== null) {
+                $website = $incident['website'] ?? null;
+                $url     = is_array($website) ? $this->normalizeUrl((string) ($website['url'] ?? '')) : '';
+                if ($url === '' || !isset($urls[$url])) {
+                    continue;
                 }
             }
-            return $open;
-        } catch (Modules_Uptimeify_Api_Exception_ApiException) {
-            return Modules_Uptimeify_Settings::getStatusIncidents();
+            $open++;
         }
+        return $open;
     }
 
     /**
