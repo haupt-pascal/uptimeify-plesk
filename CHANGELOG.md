@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.3] - 2026-06-05
+
+### Changed
+- **`meta.xml` catalog summary refreshed** to mention the two home-page widgets
+  (this server / whole account) and the white-label brand name. Metadata only —
+  no code or behaviour change.
+
 ## [1.9.2] - 2026-06-05
 
 ### Changed
@@ -344,7 +351,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.2...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.3...HEAD
+[1.9.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.8.0...v1.9.0

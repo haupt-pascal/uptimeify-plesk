@@ -2,13 +2,13 @@
 <module>
     <id>uptimeify</id>
     <name>Uptimeify Monitoring</name>
-    <description>Sync your Plesk domains to uptimeify.io uptime and blacklist monitoring. Connect an organization API token, pick a customer and package per domain, and keep monitors in sync automatically or with one click. Open-source API client for the uptimeify.io monitoring platform.</description>
+    <description>Sync your Plesk domains to uptimeify.io uptime and blacklist monitoring. Connect an organization API token, pick a customer and package per domain, and keep monitors in sync automatically or with one click. Two home-page widgets show health at a glance — one for this server, one for your whole account — and a white-label brand name lets the panel match your own hosting brand. Open-source API client for the uptimeify.io monitoring platform.</description>
     <category>Monitoring</category>
     <url>https://uptimeify.io</url>
     <help_url>https://uptimeify.io/docs/api</help_url>
     <support_url>https://github.com/haupt-pascal/uptimeify-plesk/issues</support_url>
-    <version>1.9.2</version>
-    <release>34</release>
+    <version>1.9.3</version>
+    <release>35</release>
     <vendor>Uptimeify</vendor>
     <plesk_min_version>18.0.20</plesk_min_version>
 </module>
