@@ -6,8 +6,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-- Planned: service-plan level filtering (pending server verification of plan
-  lookup via `pm_ApiRpc`).
+> Service-plan level filtering was evaluated and intentionally **not** pursued:
+> Plesk plan names are not unique (scoped per provider) and the domain→plan
+> mapping requires fragile XML-RPC. Customer-level filtering covers the need.
 
 ## [1.5.0] - 2026-06-05
 

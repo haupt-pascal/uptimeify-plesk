@@ -26,6 +26,11 @@ inside Plesk; the extension only talks to the uptimeify REST API.
   customer (auto), or pick a different customer from the dropdown.
 - **Mirror & sync all** — one button provisions every customer + monitor to match
   your Plesk structure (the agency workload killer).
+- **Selective sync & ignore** — per-domain checkboxes with "Sync selected", a
+  per-domain Ignore, and automatic exclusion of Plesk preview domains
+  (`*.plesk.page`).
+- **Customer filter (Filter tab)** — black/whitelist mode plus per-customer
+  Always / Never / Default, applied to dashboard, bulk and scheduled sync.
 - **One-click disable** — removes the remote monitor (`DELETE /api/websites/:id`).
 - **Scheduled sync** — an hourly Plesk task mirrors customers and adds monitors
   for new domains.
@@ -61,8 +66,9 @@ _meta/icons/                  Catalog icons (32/64/128/160 px PNG)
 htdocs/index.php              UI entry point (pm_Application) — powers "Open"
 plib/
   controllers/                Plesk MVC controllers
-    IndexController.php          Dashboard + AJAX sync actions
-    SettingsController.php       Token, handshake, sync defaults
+    IndexController.php          Dashboard + AJAX sync/enable/disable/ignore actions
+    FilterController.php         Filter tab — customer black/whitelist
+    SettingsController.php       Token, handshake, sync defaults (setup wizard)
   library/
     Settings.php                pm_Settings wrapper (token, mapping, defaults)
     Api/Client.php              Guzzle (PSR-18) uptimeify REST client, 5s timeout
