@@ -98,8 +98,9 @@ $messages = [
     'error.quota'        => 'Limit erreicht! Dein uptimeify-Tarif erlaubt keine weiteren Monitore. Jetzt Tarif upgraden.',
     'error.missingParams' => 'Erforderliche Parameter fehlen.',
 
-    'widget.title'     => 'Uptimeify',
-    'widget.allNominal' => 'Alle Systeme nominal',
-    'widget.systemsDown' => '%%count%% Systeme down',
-    'widget.notConnected' => 'Nicht verbunden',
+    'widget.title'      => 'Uptimeify Monitoring',
+    'widget.allNominal' => 'Alle %%total%% Monitore nominal.',
+    'widget.attention'  => '%%count%% von %%total%% Monitoren brauchen Aufmerksamkeit.',
+    'widget.open'       => 'Öffne Uptimeify, um deine Domains zu synchronisieren.',
+    'widget.openButton' => 'Uptimeify öffnen',
 ];

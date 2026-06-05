@@ -40,6 +40,34 @@ if (!class_exists('pm_Context')) {
         {
             return '';
         }
+
+        public static function getBaseUrl(): string
+        {
+            return '';
+        }
+    }
+}
+
+if (!class_exists('pm_Hook_Promos')) {
+    abstract class pm_Hook_Promos
+    {
+        /** @return list<pm_Promo_AdminHome> */
+        abstract public function getPromos();
+    }
+}
+
+if (!class_exists('pm_Promo_AdminHome')) {
+    abstract class pm_Promo_AdminHome
+    {
+        /**
+         * @param string $key
+         * @param array<string, string> $params
+         * @return string
+         */
+        public function lmsg($key, $params = [])
+        {
+            return $key;
+        }
     }
 }
 

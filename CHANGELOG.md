@@ -6,6 +6,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-06-05
+
+### Added
+- **Admin home-page widget** — shows the monitoring status (all nominal / N need
+  attention) and links into Uptimeify. Implemented via the correct Plesk hook
+  (`pm_Hook_Promos` → `pm_Promo_AdminHome`); reads a cached status so it never
+  makes a blocking API call on home-page load.
+
+### Fixed
+- The previous widget never worked: it extended a non-existent `pm_Hook_HomePage`
+  and lived in `plib/hooks/` (not autoloaded). Removed.
+
 ## [1.5.1] - 2026-06-05
 
 ### Fixed
@@ -252,7 +264,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.2...v1.5.0
 [1.4.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.4.1...v1.4.2

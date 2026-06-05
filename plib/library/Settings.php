@@ -27,6 +27,8 @@ class Modules_Uptimeify_Settings
     public const KEY_IGNORED         = 'ignoredDomains';
     public const KEY_FILTER_MODE     = 'filterMode';
     public const KEY_CUSTOMER_FILTER = 'customerFilter';
+    public const KEY_STATUS_DOWN     = 'statusDown';
+    public const KEY_STATUS_TOTAL    = 'statusTotal';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
     public const KEY_SYNC_INTERVAL   = 'syncInterval';
 
@@ -344,6 +346,26 @@ class Modules_Uptimeify_Settings
     public static function getCustomerState(int $clientId): string
     {
         return self::getCustomerFilter()[(string) $clientId] ?? 'default';
+    }
+
+    /**
+     * Cached monitoring status for the home-page widget (updated on dashboard
+     * load and scheduled sync, so the widget never makes a blocking API call).
+     */
+    public static function setStatus(int $down, int $total): void
+    {
+        pm_Settings::set(self::KEY_STATUS_DOWN, (string) $down);
+        pm_Settings::set(self::KEY_STATUS_TOTAL, (string) $total);
+    }
+
+    public static function getStatusDown(): int
+    {
+        return (int) pm_Settings::get(self::KEY_STATUS_DOWN, '0');
+    }
+
+    public static function getStatusTotal(): int
+    {
+        return (int) pm_Settings::get(self::KEY_STATUS_TOTAL, '-1');
     }
 
     public static function setCustomerState(int $clientId, string $state): void

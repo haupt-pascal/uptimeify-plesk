@@ -42,7 +42,9 @@ class Modules_Uptimeify_Sync_DomainSyncService
      */
     public function getDashboardRows(): array
     {
-        $monitors = $this->indexMonitorsByUrl($this->api->listWebsites());
+        $websites = $this->api->listWebsites();
+        $this->cacheStatus($websites);
+        $monitors = $this->indexMonitorsByUrl($websites);
         $mapping  = Modules_Uptimeify_Settings::getMapping();
         $rows     = [];
 
@@ -311,6 +313,23 @@ class Modules_Uptimeify_Sync_DomainSyncService
     {
         $host = gethostname();
         return is_string($host) && $host !== '' ? $host : 'server';
+    }
+
+    /**
+     * Cache the monitor count + how many need attention, for the home widget.
+     *
+     * @param list<array<string, mixed>> $websites
+     */
+    private function cacheStatus(array $websites): void
+    {
+        $down = 0;
+        foreach ($websites as $site) {
+            $status = strtolower((string) ($site['status'] ?? ''));
+            if (in_array($status, ['down', 'inactive', 'paused', 'listed'], true)) {
+                $down++;
+            }
+        }
+        Modules_Uptimeify_Settings::setStatus($down, count($websites));
     }
 
     /**
