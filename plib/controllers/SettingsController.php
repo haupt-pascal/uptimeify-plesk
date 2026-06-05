@@ -16,7 +16,7 @@ class SettingsController extends pm_Controller_Action
     {
         parent::init();
 
-        $this->view->pageTitle = $this->lmsg('pageTitle');
+        $this->view->pageTitle = $this->lmsg('pageTitle', ['brand' => Modules_Uptimeify_Settings::getBrandName()]);
 
         $this->view->tabs = [
             ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],
@@ -95,6 +95,7 @@ class SettingsController extends pm_Controller_Action
         Modules_Uptimeify_Settings::setDefaultPackageType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_DEFAULT_PACKAGE));
         Modules_Uptimeify_Settings::setDefaultCheckInterval((int) $form->getValue(Modules_Uptimeify_Settings::KEY_CHECK_INTERVAL));
         Modules_Uptimeify_Settings::setDefaultMonitoringType((string) $form->getValue(Modules_Uptimeify_Settings::KEY_MONITORING_TYPE));
+        Modules_Uptimeify_Settings::setBrandName((string) $form->getValue(Modules_Uptimeify_Settings::KEY_BRAND_NAME));
 
         // Re-register the Plesk scheduled task to match the new sync settings.
         try {
@@ -196,6 +197,13 @@ class SettingsController extends pm_Controller_Action
                 'label'       => $this->lmsg('settings.dnsbl'),
                 'checked'     => Modules_Uptimeify_Settings::isDnsblEnabled(),
                 'description' => $this->lmsg('settings.dnsblHint'),
+            ]);
+
+            // --- White-label ---
+            $form->addElement('text', Modules_Uptimeify_Settings::KEY_BRAND_NAME, [
+                'label'       => $this->lmsg('settings.brandName'),
+                'value'       => Modules_Uptimeify_Settings::getBrandName(),
+                'description' => $this->lmsg('settings.brandNameHint'),
             ]);
         }
 

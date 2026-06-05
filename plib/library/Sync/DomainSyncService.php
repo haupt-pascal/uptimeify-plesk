@@ -316,7 +316,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
     }
 
     /**
-     * Cache the monitor count + how many need attention, for the home widget.
+     * Cache the monitor count, how many need attention and the number of open
+     * incidents, for the home-page widget.
      *
      * @param list<array<string, mixed>> $websites
      */
@@ -329,7 +330,27 @@ class Modules_Uptimeify_Sync_DomainSyncService
                 $down++;
             }
         }
-        Modules_Uptimeify_Settings::setStatus($down, count($websites));
+
+        Modules_Uptimeify_Settings::setStatus($down, count($websites), $this->countOpenIncidents());
+    }
+
+    /**
+     * Count open incidents org-wide (best-effort: the widget metric must never
+     * break the dashboard load, so on any API error we keep the last value).
+     */
+    private function countOpenIncidents(): int
+    {
+        try {
+            $open = 0;
+            foreach ($this->api->listIncidents(Modules_Uptimeify_Settings::getOrganizationId()) as $incident) {
+                if (strtolower((string) ($incident['status'] ?? '')) === 'open') {
+                    $open++;
+                }
+            }
+            return $open;
+        } catch (Modules_Uptimeify_Api_Exception_ApiException) {
+            return Modules_Uptimeify_Settings::getStatusIncidents();
+        }
     }
 
     /**

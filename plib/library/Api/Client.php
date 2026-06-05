@@ -194,6 +194,24 @@ class Modules_Uptimeify_Api_Client
     }
 
     /**
+     * List incidents for the organization. The organization is derived from the
+     * token; only pass an explicit id when it is genuinely known (> 0). The
+     * `includeTotal=1` envelope ({incidents, total, ...}) is unwrapped here.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function listIncidents(?int $organizationId = null, int $limit = 500): array
+    {
+        $query = ['includeTotal' => 1, 'limit' => $limit];
+        if ($organizationId !== null && $organizationId > 0) {
+            $query['organizationId'] = $organizationId;
+        }
+        $data  = $this->request('GET', '/api/incidents', ['query' => $query]);
+        $items = $data['incidents'] ?? $data;
+        return is_array($items) ? array_values(array_filter($items, 'is_array')) : [];
+    }
+
+    /**
      * @return array<string, mixed> Uptime stats for a single website.
      */
     public function getUptimeStats(string $websitePublicId): array

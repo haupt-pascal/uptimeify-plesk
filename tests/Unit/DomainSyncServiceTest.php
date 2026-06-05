@@ -52,6 +52,65 @@ class DomainSyncServiceTest extends TestCase
         self::assertSame('Beta GmbH', $unmonitored['ownerName']);
     }
 
+    public function testDashboardCachesStatusWithOpenIncidentCount(): void
+    {
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([
+            ['publicId' => 'w1', 'url' => 'https://acme.example', 'status' => 'active'],
+            ['publicId' => 'w2', 'url' => 'https://beta.example', 'status' => 'down'],
+        ]);
+        $api->method('listCustomers')->willReturn([]);
+        $api->method('listIncidents')->willReturn([
+            ['id' => 1, 'status' => 'open'],
+            ['id' => 2, 'status' => 'resolved'],
+            ['id' => 3, 'status' => 'open'],
+        ]);
+
+        $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
+        $domains->method('all')->willReturn([
+            ['name' => 'acme.example', 'displayName' => 'acme.example', 'displayUrl' => 'https://acme.example', 'ip' => '', 'clientId' => 1, 'clientName' => 'Acme', 'clientEmail' => 'a@acme.example'],
+        ]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);
+        $service->getDashboardRows();
+
+        self::assertSame(2, \Modules_Uptimeify_Settings::getStatusTotal());
+        self::assertSame(1, \Modules_Uptimeify_Settings::getStatusDown());
+        self::assertSame(2, \Modules_Uptimeify_Settings::getStatusIncidents());
+    }
+
+    public function testIncidentFailureKeepsLastCachedCount(): void
+    {
+        \Modules_Uptimeify_Settings::setStatus(0, 5, 7);
+
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([]);
+        $api->method('listCustomers')->willReturn([]);
+        $api->method('listIncidents')->willThrowException(
+            new \Modules_Uptimeify_Api_Exception_ApiException('boom'),
+        );
+
+        $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
+        $domains->method('all')->willReturn([]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);
+        $service->getDashboardRows();
+
+        // The best-effort incident count must not be wiped on API error.
+        self::assertSame(7, \Modules_Uptimeify_Settings::getStatusIncidents());
+    }
+
+    public function testBrandNameDefaultsToUptimeify(): void
+    {
+        self::assertSame('Uptimeify', \Modules_Uptimeify_Settings::getBrandName());
+
+        \Modules_Uptimeify_Settings::setBrandName('  Acme Status  ');
+        self::assertSame('Acme Status', \Modules_Uptimeify_Settings::getBrandName());
+
+        \Modules_Uptimeify_Settings::setBrandName('');
+        self::assertSame('Uptimeify', \Modules_Uptimeify_Settings::getBrandName());
+    }
+
     public function testEnableWithExplicitCustomerCreatesWebsiteAndMapping(): void
     {
         $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);

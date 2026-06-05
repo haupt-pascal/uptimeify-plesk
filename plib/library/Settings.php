@@ -29,6 +29,8 @@ class Modules_Uptimeify_Settings
     public const KEY_CUSTOMER_FILTER = 'customerFilter';
     public const KEY_STATUS_DOWN     = 'statusDown';
     public const KEY_STATUS_TOTAL    = 'statusTotal';
+    public const KEY_STATUS_INCIDENTS = 'statusIncidents';
+    public const KEY_BRAND_NAME      = 'brandName';
     public const KEY_AUTO_CREATE_CUSTOMERS = 'autoCreateCustomers';
     public const KEY_SYNC_INTERVAL   = 'syncInterval';
 
@@ -350,12 +352,14 @@ class Modules_Uptimeify_Settings
 
     /**
      * Cached monitoring status for the home-page widget (updated on dashboard
-     * load and scheduled sync, so the widget never makes a blocking API call).
+     * load and scheduled sync, so the widget never makes a blocking API call):
+     * monitors needing attention, total monitors and open incidents.
      */
-    public static function setStatus(int $down, int $total): void
+    public static function setStatus(int $down, int $total, int $incidents = 0): void
     {
         pm_Settings::set(self::KEY_STATUS_DOWN, (string) $down);
         pm_Settings::set(self::KEY_STATUS_TOTAL, (string) $total);
+        pm_Settings::set(self::KEY_STATUS_INCIDENTS, (string) $incidents);
     }
 
     public static function getStatusDown(): int
@@ -366,6 +370,26 @@ class Modules_Uptimeify_Settings
     public static function getStatusTotal(): int
     {
         return (int) pm_Settings::get(self::KEY_STATUS_TOTAL, '-1');
+    }
+
+    public static function getStatusIncidents(): int
+    {
+        return (int) pm_Settings::get(self::KEY_STATUS_INCIDENTS, '0');
+    }
+
+    /**
+     * White-label brand name shown in the home-page widget instead of the
+     * default "Uptimeify". Falls back to the default when unset/blank.
+     */
+    public static function getBrandName(): string
+    {
+        $value = trim((string) pm_Settings::get(self::KEY_BRAND_NAME, ''));
+        return $value !== '' ? $value : 'Uptimeify';
+    }
+
+    public static function setBrandName(string $name): void
+    {
+        pm_Settings::set(self::KEY_BRAND_NAME, trim($name));
     }
 
     public static function setCustomerState(int $clientId, string $state): void

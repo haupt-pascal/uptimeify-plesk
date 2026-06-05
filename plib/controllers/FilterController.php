@@ -16,7 +16,7 @@ class FilterController extends pm_Controller_Action
     {
         parent::init();
 
-        $this->view->pageTitle = $this->lmsg('pageTitle');
+        $this->view->pageTitle = $this->lmsg('pageTitle', ['brand' => Modules_Uptimeify_Settings::getBrandName()]);
 
         $this->view->tabs = [
             ['title' => $this->lmsg('tabs.dashboard'), 'action' => 'index', 'controller' => 'index'],

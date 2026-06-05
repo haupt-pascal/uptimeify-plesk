@@ -6,6 +6,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-06-05
+
+### Added
+- **White-label brand name** (Settings → step 2): set a custom brand name that
+  replaces “Uptimeify” in the Plesk home-page widget and page titles. Defaults to
+  “Uptimeify” when left blank.
+- **Richer home-page widget**: the status block is now a stat row — total
+  monitors, how many need attention (red) and open incidents (red) — with an
+  “Open <brand>” button. The figures reflect your whole uptimeify organization
+  (account-wide health), not just this server's domains.
+- **Open-incident metric**: `Api\Client::listIncidents()` (GET `/api/incidents`)
+  and a cached `status.incidents` count, populated best-effort on dashboard load
+  and scheduled sync so the widget never makes a blocking API call.
+
 ## [1.7.0] - 2026-06-05
 
 ### Added
@@ -302,7 +316,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...v1.7.0
 [1.6.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.2...v1.6.3

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $messages = [
-    'pageTitle' => 'Uptimeify Monitoring',
+    'pageTitle' => '%%brand%% Monitoring',
 
     'tabs.dashboard' => 'Dashboard',
     'tabs.filter'    => 'Filter',
@@ -87,6 +87,8 @@ $messages = [
     'settings.scheduleWarning'  => 'Saved, but the scheduled task could not be updated: %%error%%',
     'settings.dnsbl'            => 'Also monitor the server IP for blacklists (DNSBL)',
     'settings.dnsblHint'        => 'Registers the server IP per customer for blacklist monitoring. Included in your package — limited only by its IP quota.',
+    'settings.brandName'        => 'Brand name (white-label)',
+    'settings.brandNameHint'    => 'Shown on the Plesk home-page widget and page titles instead of “Uptimeify”. Leave blank for the default.',
     'settings.choose'           => '— choose —',
     'settings.save'             => 'Save',
     'settings.saved'            => 'Settings saved.',
@@ -98,9 +100,11 @@ $messages = [
     'error.quota'        => 'Limit reached! Your uptimeify plan does not allow more monitors. Upgrade your plan.',
     'error.missingParams' => 'Missing required parameters.',
 
-    'widget.title'      => 'Uptimeify Monitoring',
-    'widget.allNominal' => 'All %%total%% monitors nominal.',
-    'widget.attention'  => '%%count%% of %%total%% monitors need attention.',
-    'widget.open'       => 'Open Uptimeify to sync your domains.',
-    'widget.openButton' => 'Open Uptimeify',
+    'widget.title'         => '%%brand%% Monitoring',
+    'widget.open'          => 'Open %%brand%% to sync your domains.',
+    'widget.openButton'    => 'Open %%brand%%',
+    'widget.statMonitors'  => 'Monitors',
+    'widget.statAttention' => 'Need attention',
+    'widget.statIncidents' => 'Open incidents',
+    'widget.scope'         => 'Across your whole %%brand%% account.',
 ];
