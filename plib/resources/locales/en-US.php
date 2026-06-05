@@ -108,8 +108,8 @@ $messages = [
     'widget.statIncidents' => 'Open incidents',
     'widget.scope'         => 'Across your whole %%brand%% account.',
     'widget.serverTitle'   => '%%brand%% — this server',
-    'widget.serverOpen'    => 'Open the dashboard to sync this server’s domains.',
-    'widget.serverScope'   => 'Only domains hosted on this Plesk server.',
-    'widget.statDomains'   => 'Domains',
+    'widget.serverOpen'    => 'Open the dashboard once to load this server’s stats.',
+    'widget.serverCoverage' => '%%monitored%% of %%total%% domains on this server are monitored.',
     'widget.statMonitored' => 'Monitored',
+    'widget.statOnline'    => 'Online',
 ];

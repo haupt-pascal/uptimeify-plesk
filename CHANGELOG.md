@@ -6,6 +6,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-06-05
+
+### Changed
+- **Per-server widget now shows real coverage + health** instead of a thin block:
+  monitored domains, how many are online (green), how many need attention (red)
+  and open incidents on this server (red), plus an "X of Y domains on this server
+  are monitored" caption. Reminder: the figures fill the first time the Dashboard
+  is opened (or the scheduled sync runs) under this version, because the home
+  widget reads cached values and never calls the API on home-page load.
+
 ## [1.9.0] - 2026-06-05
 
 ### Added
@@ -327,7 +337,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.1...HEAD
+[1.9.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.6.4...v1.7.0

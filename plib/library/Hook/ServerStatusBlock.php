@@ -40,7 +40,8 @@ class Modules_Uptimeify_Hook_ServerStatusBlock extends \Plesk\SDK\Hook\Home\Bloc
         $button = pm_Locale::lmsg('widget.openButton', ['brand' => $brand]);
         $total  = Modules_Uptimeify_Settings::getServerTotal();
 
-        // No cached server status yet (dashboard never opened) — prompt to sync.
+        // No cached server status yet — it fills on the first dashboard open
+        // (or scheduled sync), since the widget never calls the API itself.
         if ($total < 0) {
             return '<div>' . htmlspecialchars(pm_Locale::lmsg('widget.serverOpen', ['brand' => $brand])) . '</div>'
                 . Modules_Uptimeify_Hook_Widget::button($url, $button);
@@ -49,14 +50,15 @@ class Modules_Uptimeify_Hook_ServerStatusBlock extends \Plesk\SDK\Hook\Home\Bloc
         $monitored = Modules_Uptimeify_Settings::getServerMonitored();
         $attention = Modules_Uptimeify_Settings::getServerAttention();
         $incidents = Modules_Uptimeify_Settings::getServerIncidents();
+        $online    = max(0, $monitored - $attention);
 
         return Modules_Uptimeify_Hook_Widget::statRow([
-            Modules_Uptimeify_Hook_Widget::stat($total, pm_Locale::lmsg('widget.statDomains'), Modules_Uptimeify_Hook_Widget::COLOR_NEUTRAL),
             Modules_Uptimeify_Hook_Widget::stat($monitored, pm_Locale::lmsg('widget.statMonitored'), Modules_Uptimeify_Hook_Widget::COLOR_NEUTRAL),
+            Modules_Uptimeify_Hook_Widget::stat($online, pm_Locale::lmsg('widget.statOnline'), Modules_Uptimeify_Hook_Widget::COLOR_OK),
             Modules_Uptimeify_Hook_Widget::stat($attention, pm_Locale::lmsg('widget.statAttention'), Modules_Uptimeify_Hook_Widget::alertColor($attention)),
             Modules_Uptimeify_Hook_Widget::stat($incidents, pm_Locale::lmsg('widget.statIncidents'), Modules_Uptimeify_Hook_Widget::alertColor($incidents)),
         ])
-            . Modules_Uptimeify_Hook_Widget::caption(pm_Locale::lmsg('widget.serverScope'))
+            . Modules_Uptimeify_Hook_Widget::caption(pm_Locale::lmsg('widget.serverCoverage', ['monitored' => (string) $monitored, 'total' => (string) $total]))
             . Modules_Uptimeify_Hook_Widget::button($url, $button);
     }
 }
