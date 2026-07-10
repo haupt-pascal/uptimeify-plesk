@@ -52,6 +52,30 @@ class DomainSyncServiceTest extends TestCase
         self::assertSame('Beta GmbH', $unmonitored['ownerName']);
     }
 
+    public function testDashboardMatchesWwwMonitorToBareLocalDomain(): void
+    {
+        // A monitor added manually at uptimeify.io as "www.website.de" must be
+        // recognised as monitoring the bare Plesk domain "website.de", so it is
+        // NOT re-synced as a duplicate.
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([
+            ['publicId' => 'web-www', 'url' => 'https://www.website.de', 'status' => 'active'],
+        ]);
+        $api->method('listCustomers')->willReturn([]);
+
+        $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
+        $domains->method('all')->willReturn([
+            ['name' => 'website.de', 'displayName' => 'website.de', 'displayUrl' => 'https://website.de', 'ip' => '', 'clientId' => 1, 'clientName' => 'Acme', 'clientEmail' => 'a@website.de'],
+        ]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $domains);
+        $rows = $service->getDashboardRows();
+
+        self::assertCount(1, $rows);
+        self::assertTrue($rows[0]['monitored']);
+        self::assertSame('web-www', $rows[0]['websitePublicId']);
+    }
+
     public function testDashboardCachesStatusWithOpenIncidentCount(): void
     {
         $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);

@@ -533,6 +533,11 @@ class Modules_Uptimeify_Sync_DomainSyncService
     private function normalizeUrl(string $url): string
     {
         $host = parse_url($url, PHP_URL_HOST) ?: $url;
-        return strtolower(ltrim((string) preg_replace('#^https?://#i', '', $host), '/'));
+        $host = strtolower(ltrim((string) preg_replace('#^https?://#i', '', $host), '/'));
+
+        // Treat a leading "www." as equivalent to the bare domain, so a monitor
+        // added manually as "www.website.de" matches the Plesk domain
+        // "website.de" instead of being re-synced as a duplicate.
+        return (string) preg_replace('#^www\.#', '', $host);
     }
 }

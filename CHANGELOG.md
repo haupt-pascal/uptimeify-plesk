@@ -6,6 +6,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.4] - 2026-07-10
+
+### Fixed
+- **`www.` monitors no longer duplicated.** A monitor added manually at
+  uptimeify.io as `www.website.de` is now recognised as monitoring the bare
+  Plesk domain `website.de`, so the sync no longer re-creates it as a separate
+  `website.de` monitor. URL matching (dashboard, incident and server scopes)
+  now treats a leading `www.` as equivalent to the bare domain.
+
 ## [1.9.3] - 2026-06-05
 
 ### Changed
@@ -351,7 +360,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.3...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.4...HEAD
+[1.9.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.0...v1.9.1
