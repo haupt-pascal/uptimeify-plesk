@@ -6,6 +6,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.6] - 2026-11-25
+
+### Fixed
+- **Quota detection hardened: error code instead of message text.** A `403`
+  now counts as "quota reached" (upgrade prompt, `quota reached` in the sync
+  summary) only when the API's error envelope carries `data.code`
+  `activeMonitorLimitReached`, `monitorQuotaReached` or
+  `monitorQuotaNoHigherTier`. It no longer depends on the wording of the
+  message, and an unrelated `403` whose text merely contains "limit reached" is
+  no longer mistaken for a quota error. The DNSBL IP limit (`data.code: generic`
+  with a message starting `Active IP limit reached`) is also classified as
+  quota, but it is still ignored during the best-effort server IP registration
+  (behaviour unchanged).
+
 ## [1.9.5] - 2026-11-06
 
 ### Fixed
@@ -368,7 +382,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.4...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.5...HEAD
+[1.9.5]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.1...v1.9.2

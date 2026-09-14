@@ -34,8 +34,12 @@ inside Plesk; the extension only talks to the uptimeify REST API.
 - **One-click disable** — removes the remote monitor (`DELETE /api/websites/:id`).
 - **Scheduled sync** — an hourly Plesk task mirrors customers and adds monitors
   for new domains.
-- **Quota handling** — `403 Active website limit reached` is caught and shown as
-  an upgrade prompt instead of a hard error.
+- **Quota handling** — a `403` whose error envelope carries a monitor quota
+  `data.code` (`activeMonitorLimitReached`, `monitorQuotaReached`,
+  `monitorQuotaNoHigherTier`) is caught and shown as an upgrade prompt instead
+  of a hard error. The DNSBL IP limit (`generic` with `Active IP limit reached…`)
+  is classified as quota too, but ignored during the best-effort server IP
+  registration.
 - **Blacklist (DNSBL)** — optionally register the server IP per customer
   (`POST /api/customers/:id/ips`); included in the package, bound by its IP quota.
 - **Home widget** — compact "All systems nominal" / "X systems down" panel on
