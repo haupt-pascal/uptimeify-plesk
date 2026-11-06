@@ -74,8 +74,7 @@ class Modules_Uptimeify_Api_Client
         if ($organizationId !== null && $organizationId > 0) {
             $options['query'] = ['organizationId' => $organizationId];
         }
-        $data = $this->request('GET', '/api/customers', $options);
-        return array_values(array_filter($data, 'is_array'));
+        return self::unwrapList($this->request('GET', '/api/customers', $options));
     }
 
     /**
@@ -118,8 +117,7 @@ class Modules_Uptimeify_Api_Client
      */
     public function listPackageConfigs(): array
     {
-        $data = $this->request('GET', '/api/package-configs');
-        return array_values(array_filter($data, 'is_array'));
+        return self::unwrapList($this->request('GET', '/api/package-configs'));
     }
 
     /**
@@ -131,9 +129,7 @@ class Modules_Uptimeify_Api_Client
         if ($customerPublicId !== null && $customerPublicId !== '') {
             $query['customerId'] = $customerPublicId;
         }
-        $data = $this->request('GET', '/api/websites', ['query' => $query]);
-        $items = $data['items'] ?? $data;
-        return is_array($items) ? array_values(array_filter($items, 'is_array')) : [];
+        return self::unwrapList($this->request('GET', '/api/websites', ['query' => $query]));
     }
 
     /**
@@ -206,9 +202,7 @@ class Modules_Uptimeify_Api_Client
         if ($organizationId !== null && $organizationId > 0) {
             $query['organizationId'] = $organizationId;
         }
-        $data  = $this->request('GET', '/api/incidents', ['query' => $query]);
-        $items = $data['incidents'] ?? $data;
-        return is_array($items) ? array_values(array_filter($items, 'is_array')) : [];
+        return self::unwrapList($this->request('GET', '/api/incidents', ['query' => $query]), 'incidents');
     }
 
     /**
@@ -217,6 +211,25 @@ class Modules_Uptimeify_Api_Client
     public function getUptimeStats(string $websitePublicId): array
     {
         return $this->request('GET', '/api/websites/' . rawurlencode($websitePublicId) . '/uptime-stats');
+    }
+
+    /**
+     * The rows of a list response, in either of the API's two list forms.
+     *
+     * On 2027-01-18 the Uptimeify API makes `{items, total, page, perPage}` the default for
+     * every list endpoint and drops the old forms (a bare array, or a named key such as
+     * `incidents`). Reading both keeps the extension working before and after that date.
+     *
+     * @param mixed $data Decoded response body.
+     * @return list<array<string, mixed>>
+     */
+    public static function unwrapList($data, ?string $legacyKey = null): array
+    {
+        if (!is_array($data)) {
+            return [];
+        }
+        $items = $data['items'] ?? ($legacyKey !== null ? ($data[$legacyKey] ?? $data) : $data);
+        return is_array($items) ? array_values(array_filter($items, 'is_array')) : [];
     }
 
     /**

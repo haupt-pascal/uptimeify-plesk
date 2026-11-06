@@ -6,6 +6,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.5] - 2026-11-06
+
+### Fixed
+- **Ready for the API's new list form.** From 2027-01-18 the Uptimeify API
+  answers every list with `{items, total, page, perPage}` and drops the old
+  forms. Customers, packages and incidents were read in the old form only and
+  would have come back empty or broken; all lists now read both forms.
+
 ## [1.9.4] - 2026-07-10
 
 ### Fixed
