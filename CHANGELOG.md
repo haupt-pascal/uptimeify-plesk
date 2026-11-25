@@ -6,6 +6,44 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.9.6] - 2026-11-25
+
+### Fixed
+- **Default monitoring type "HTTP status" / "SSL check" works again.** The
+  settings form stored `http status` / `ssl check` (with a space); the API only
+  accepts `http_status` / `ssl_check` and rejected every new monitor with a
+  `400`. The form now stores the API values, and a value saved by an older
+  version is read as the correct one, so nothing has to be saved again.
+- **All monitors and customers are read, not only the first page.** The monitor
+  list stopped after 200 rows and the customer list would have stopped after
+  one page once the API pages it by default (2027-01-18). Larger accounts saw
+  monitored domains as unmonitored and customers were created twice. Both
+  lists are now read page by page until the API's `total` is reached.
+- **Failing monitors are counted in the widgets.** "Needs attention" looked for
+  a `status` of `down`, which the API never sends (`status` is only
+  active/inactive/maintenance). It now reads the health flags `isDown`,
+  `hasCritical` and `hasWarning`; a monitor in a maintenance window is not
+  counted.
+- **Acknowledged incidents count as open.** The incident counters only counted
+  `open` and dropped an incident as soon as somebody acknowledged it.
+- **An existing monitor is adopted instead of reported as an error.** When the
+  API answers `409 monitorAlreadyExists`, the extension stores the monitor it
+  names and treats the domain as monitored.
+- **Clear messages for limits.** `targetHostMonitorLimitReached`,
+  `targetHostPlatformLimitReached`, `selfServiceQuotaReached`, `quotaRequired`
+  and `billingSetupRequired` are explained in English and German instead of
+  "uptimeify API error (HTTP 403): Forbidden".
+- **Quota detection hardened: error code instead of message text.** A `403`
+  now counts as "quota reached" (upgrade prompt, `quota reached` in the sync
+  summary) only when the API's error envelope carries `data.code`
+  `activeMonitorLimitReached`, `monitorQuotaReached` or
+  `monitorQuotaNoHigherTier`. It no longer depends on the wording of the
+  message, and an unrelated `403` whose text merely contains "limit reached" is
+  no longer mistaken for a quota error. The DNSBL IP limit (`data.code: generic`
+  with a message starting `Active IP limit reached`) is also classified as
+  quota, but it is still ignored during the best-effort server IP registration
+  (behaviour unchanged).
+
 ## [1.9.5] - 2026-11-06
 
 ### Fixed
@@ -368,7 +406,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Admin home page widget.
 - GitHub Actions CI (lint, PHPStan, PHPUnit) and tag-based release pipeline.
 
-[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.4...HEAD
+[Unreleased]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.5...HEAD
+[1.9.5]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/haupt-pascal/uptimeify-plesk/compare/v1.9.1...v1.9.2

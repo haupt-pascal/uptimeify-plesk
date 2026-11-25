@@ -99,6 +99,11 @@ $messages = [
     'error.unauthorized' => 'Dein API-Token wurde abgelehnt. Öffne die Einstellungen, um dich neu zu verbinden.',
     'error.quota'        => 'Limit erreicht! Dein uptimeify-Tarif erlaubt keine weiteren Monitore. Jetzt Tarif upgraden.',
     'error.missingParams' => 'Erforderliche Parameter fehlen.',
+    'error.api.targetHostMonitorLimitReached'  => 'Deine Organisation hat bereits %%limit%% Monitore für den Host %%host%%. Entferne einen davon, bevor du einen weiteren anlegst.',
+    'error.api.targetHostPlatformLimitReached' => 'Der Host %%host%% hat die Grenze von %%limit%% Monitoren über alle uptimeify-Konten erreicht. Für ihn kann kein weiterer Monitor angelegt werden.',
+    'error.api.selfServiceQuotaReached'        => 'Dieser Kunde hat seine Self-Service-Monitore aufgebraucht. Erhöhe das Limit im Paket des Kunden.',
+    'error.api.quotaRequired'                  => 'Für deine uptimeify-Organisation ist noch kein Kontingent gewählt. Wähle eines auf uptimeify.io, bevor du Kunden anlegst.',
+    'error.api.billingSetupRequired'           => 'Für deine uptimeify-Organisation fehlt eine gültige Zahlungsart. Richte die Abrechnung auf uptimeify.io ein, bevor du Kunden anlegst.',
 
     'widget.title'         => '%%brand%% Monitoring',
     'widget.open'          => 'Öffne %%brand%%, um deine Domains zu synchronisieren.',

@@ -99,6 +99,11 @@ $messages = [
     'error.unauthorized' => 'Your API token was rejected. Open Settings to re-connect.',
     'error.quota'        => 'Limit reached! Your uptimeify plan does not allow more monitors. Upgrade your plan.',
     'error.missingParams' => 'Missing required parameters.',
+    'error.api.targetHostMonitorLimitReached'  => 'Your organization already has %%limit%% monitors for the host %%host%%. Remove one of them before adding another.',
+    'error.api.targetHostPlatformLimitReached' => 'The host %%host%% has reached the limit of %%limit%% monitors across all uptimeify accounts. No further monitor can be added for it.',
+    'error.api.selfServiceQuotaReached'        => 'This customer has used up its self-service monitors. Raise the limit in the customer\'s package.',
+    'error.api.quotaRequired'                  => 'Your uptimeify organization has no quota selected yet. Choose one at uptimeify.io before adding customers.',
+    'error.api.billingSetupRequired'           => 'Your uptimeify organization has no valid payment method yet. Set up billing at uptimeify.io before adding customers.',
 
     'widget.title'         => '%%brand%% Monitoring',
     'widget.open'          => 'Open %%brand%% to sync your domains.',

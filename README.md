@@ -34,8 +34,20 @@ inside Plesk; the extension only talks to the uptimeify REST API.
 - **One-click disable** — removes the remote monitor (`DELETE /api/websites/:id`).
 - **Scheduled sync** — an hourly Plesk task mirrors customers and adds monitors
   for new domains.
-- **Quota handling** — `403 Active website limit reached` is caught and shown as
-  an upgrade prompt instead of a hard error.
+- **Quota handling** — a `403` whose error envelope carries a monitor quota
+  `data.code` (`activeMonitorLimitReached`, `monitorQuotaReached`,
+  `monitorQuotaNoHigherTier`) is caught and shown as an upgrade prompt instead
+  of a hard error. The DNSBL IP limit (`generic` with `Active IP limit reached…`)
+  is classified as quota too, but ignored during the best-effort server IP
+  registration.
+- **Clear limit errors** — a `403` with `targetHostMonitorLimitReached`,
+  `targetHostPlatformLimitReached`, `selfServiceQuotaReached`, `quotaRequired`
+  or `billingSetupRequired` is shown as a translated explanation. A `409`
+  `monitorAlreadyExists` is not an error: the monitor the API names
+  (`data.existingPublicId`) is adopted into the mapping.
+- **Complete lists** — monitors (`GET /api/websites`, 200 per page) and
+  customers (`GET /api/customers?envelope=items`, 100 per page) are read page
+  by page until `total` is reached.
 - **Blacklist (DNSBL)** — optionally register the server IP per customer
   (`POST /api/customers/:id/ips`); included in the package, bound by its IP quota.
 - **Home widget** — compact "All systems nominal" / "X systems down" panel on
@@ -121,7 +133,7 @@ On the **Settings** tab:
 | Organization API token           | Your `wsm_…` token. Validated on save.                             |
 | Mirror Plesk customers           | Auto-create a uptimeify customer per Plesk customer.               |
 | Default package for new customers| Package assigned to auto-created customers.                       |
-| Default monitoring type          | `combined`, `http status` or `ssl check`.                         |
+| Default monitoring type          | `combined`, `http_status` or `ssl_check`.                         |
 | Default check interval           | 1–60 minutes (minimum depends on the package).                    |
 | Enable scheduled sync            | Hourly job that mirrors customers and adds monitors.              |
 | Monitor server IP (DNSBL)        | Optional blacklist monitoring; included in the package.          |

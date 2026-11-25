@@ -181,8 +181,8 @@ class SettingsController extends pm_Controller_Action
                 'label'        => $this->lmsg('settings.monitoringType'),
                 'multiOptions' => [
                     'combined'    => 'Combined',
-                    'http status' => 'HTTP status',
-                    'ssl check'   => 'SSL check',
+                    'http_status' => 'HTTP status',
+                    'ssl_check'   => 'SSL check',
                 ],
                 'value'        => Modules_Uptimeify_Settings::getDefaultMonitoringType(),
             ]);
