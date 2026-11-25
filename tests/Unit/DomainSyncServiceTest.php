@@ -81,7 +81,7 @@ class DomainSyncServiceTest extends TestCase
         $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
         $api->method('listWebsites')->willReturn([
             ['publicId' => 'w1', 'url' => 'https://acme.example', 'status' => 'active'],
-            ['publicId' => 'w2', 'url' => 'https://beta.example', 'status' => 'down'],
+            ['publicId' => 'w2', 'url' => 'https://beta.example', 'status' => 'active', 'isDown' => true],
         ]);
         $api->method('listCustomers')->willReturn([]);
         $api->method('listIncidents')->willReturn([
@@ -108,8 +108,8 @@ class DomainSyncServiceTest extends TestCase
         $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
         // Org has many monitors; only one of them is on THIS server.
         $api->method('listWebsites')->willReturn([
-            ['publicId' => 'w1', 'url' => 'https://acme.example', 'status' => 'down'],
-            ['publicId' => 'w2', 'url' => 'https://elsewhere.example', 'status' => 'down'],
+            ['publicId' => 'w1', 'url' => 'https://acme.example', 'status' => 'active', 'isDown' => true],
+            ['publicId' => 'w2', 'url' => 'https://elsewhere.example', 'status' => 'active', 'isDown' => true],
             ['publicId' => 'w3', 'url' => 'https://another.example', 'status' => 'active'],
         ]);
         $api->method('listCustomers')->willReturn([]);
@@ -226,5 +226,113 @@ class DomainSyncServiceTest extends TestCase
         $service->enable('acme.example', 'auto', 'pro');
 
         self::assertSame('new-cust-uuid', \Modules_Uptimeify_Settings::getCustomerForClient(5));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, int}>
+     */
+    public static function healthRows(): iterable
+    {
+        yield 'healthy' => [['status' => 'active', 'isDown' => false, 'hasCritical' => false, 'hasWarning' => false], 0];
+        yield 'down' => [['status' => 'active', 'isDown' => true], 1];
+        yield 'critical' => [['status' => 'active', 'hasCritical' => true], 1];
+        yield 'warning' => [['status' => 'active', 'hasWarning' => true], 1];
+        yield 'down in a maintenance window' => [['status' => 'maintenance', 'isDown' => true, 'inMaintenance' => true], 0];
+        yield 'paused' => [['status' => 'inactive'], 1];
+        yield 'status "down" is not an API value' => [['status' => 'down'], 0];
+    }
+
+    /**
+     * @param array<string, mixed> $monitor
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('healthRows')]
+    public function testAttentionComesFromTheHealthFlags(array $monitor, int $expected): void
+    {
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([$monitor + ['publicId' => 'w1', 'url' => 'https://acme.example']]);
+        $api->method('listCustomers')->willReturn([]);
+        $api->method('listIncidents')->willReturn([]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $this->oneDomain());
+        $service->getDashboardRows();
+
+        self::assertSame($expected, \Modules_Uptimeify_Settings::getStatusDown());
+        self::assertSame($expected, \Modules_Uptimeify_Settings::getServerAttention());
+    }
+
+    public function testAcknowledgedIncidentsCountAsOpen(): void
+    {
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([]);
+        $api->method('listCustomers')->willReturn([]);
+        $api->method('listIncidents')->willReturn([
+            ['id' => 1, 'status' => 'open'],
+            ['id' => 2, 'status' => 'acknowledged'],
+            ['id' => 3, 'status' => 'resolved'],
+        ]);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $this->oneDomain());
+        $service->getDashboardRows();
+
+        self::assertSame(2, \Modules_Uptimeify_Settings::getStatusIncidents());
+    }
+
+    public function testExistingMonitorIsAdoptedOn409(): void
+    {
+        $conflict          = new \Modules_Uptimeify_Api_Exception_ApiException('conflict', 409);
+        $conflict->apiCode = 'monitorAlreadyExists';
+        $conflict->apiData = ['code' => 'monitorAlreadyExists', 'existingId' => 7, 'existingPublicId' => 'web-existing'];
+
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([]);
+        $api->method('listCustomers')->willReturn([['publicId' => 'cust-uuid-1', 'name' => 'Acme', 'email' => 'a@acme.example']]);
+        $api->method('listIncidents')->willReturn([]);
+        $api->method('createWebsite')->willThrowException($conflict);
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $this->oneDomain());
+        $summary = $service->mirrorAndSyncAll();
+
+        self::assertSame([], $summary['errors']);
+        self::assertSame(0, $summary['websitesCreated']);
+        $mapping = \Modules_Uptimeify_Settings::getMappingFor('acme.example');
+        self::assertNotNull($mapping);
+        self::assertSame('web-existing', $mapping['websitePublicId']);
+        self::assertSame('cust-uuid-1', $mapping['customerPublicId']);
+    }
+
+    public function testOther409StaysAnError(): void
+    {
+        $api = $this->createMock(\Modules_Uptimeify_Api_Client::class);
+        $api->method('listWebsites')->willReturn([]);
+        $api->method('listCustomers')->willReturn([['publicId' => 'cust-uuid-1', 'name' => 'Acme', 'email' => 'a@acme.example']]);
+        $api->method('listIncidents')->willReturn([]);
+        $api->method('createWebsite')->willThrowException(new \Modules_Uptimeify_Api_Exception_ApiException('conflict', 409));
+
+        $service = new \Modules_Uptimeify_Sync_DomainSyncService($api, $this->oneDomain());
+        $summary = $service->mirrorAndSyncAll();
+
+        self::assertSame(['acme.example: conflict'], $summary['errors']);
+        self::assertNull(\Modules_Uptimeify_Settings::getMappingFor('acme.example'));
+    }
+
+    public function testStoredMonitoringTypeWithSpaceIsReadAsApiValue(): void
+    {
+        \pm_Settings::set(\Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, 'http status');
+        self::assertSame('http_status', \Modules_Uptimeify_Settings::getDefaultMonitoringType());
+
+        \pm_Settings::set(\Modules_Uptimeify_Settings::KEY_MONITORING_TYPE, 'ssl check');
+        self::assertSame('ssl_check', \Modules_Uptimeify_Settings::getDefaultMonitoringType());
+
+        \pm_Settings::reset();
+        self::assertSame('combined', \Modules_Uptimeify_Settings::getDefaultMonitoringType());
+    }
+
+    private function oneDomain(): \Modules_Uptimeify_Plesk_DomainRepository
+    {
+        $domains = $this->createMock(\Modules_Uptimeify_Plesk_DomainRepository::class);
+        $domains->method('all')->willReturn([
+            ['name' => 'acme.example', 'displayName' => 'acme.example', 'displayUrl' => 'https://acme.example', 'ip' => '', 'clientId' => 1, 'clientName' => 'Acme', 'clientEmail' => 'a@acme.example'],
+        ]);
+        return $domains;
     }
 }

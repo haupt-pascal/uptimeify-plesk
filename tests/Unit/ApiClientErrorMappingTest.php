@@ -121,6 +121,76 @@ class ApiClientErrorMappingTest extends TestCase
         $this->assertPlainApiException($client, 403);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function explainedCodes(): iterable
+    {
+        yield 'host limit of the organization' => ['targetHostMonitorLimitReached'];
+        yield 'host limit of the platform' => ['targetHostPlatformLimitReached'];
+        yield 'self-service quota' => ['selfServiceQuotaReached'];
+        yield 'no quota selected' => ['quotaRequired'];
+        yield 'no payment method' => ['billingSetupRequired'];
+    }
+
+    #[DataProvider('explainedCodes')]
+    public function testLimitCodesGetAClearMessageAndStayNonQuota(string $code): void
+    {
+        $client = $this->clientAnswering(403, [
+            'statusCode'    => 403,
+            'statusMessage' => 'Forbidden',
+            'message'       => 'Forbidden',
+            'data'          => ['code' => $code, 'host' => 'acme.example', 'limit' => 100],
+        ]);
+
+        try {
+            $client->createWebsite('cust-uuid-1', 'acme.example', 'https://acme.example');
+            self::fail('Expected an ApiException');
+        } catch (\Modules_Uptimeify_Api_Exception_ApiException $e) {
+            // A full host or a missing payment method does not end the sync run like a quota does.
+            self::assertNotInstanceOf(\Modules_Uptimeify_Api_Exception_QuotaExceededException::class, $e);
+            // The test stub of pm_Locale answers the key itself.
+            self::assertSame('error.api.' . $code, $e->getMessage());
+            self::assertSame($code, $e->apiCode);
+            self::assertSame(403, $e->getCode());
+        }
+    }
+
+    public function testEveryExplainedCodeHasAStringInEveryLocale(): void
+    {
+        $files = glob(dirname(__DIR__, 2) . '/plib/resources/locales/*.php');
+        self::assertNotEmpty($files);
+
+        foreach ($files as $file) {
+            // The locale file assigns $messages instead of returning it.
+            $messages = (static function (string $file): array {
+                $messages = [];
+                require $file;
+                return $messages;
+            })($file);
+            foreach (self::explainedCodes() as [$code]) {
+                self::assertArrayHasKey('error.api.' . $code, $messages, basename($file));
+            }
+        }
+    }
+
+    public function testMonitorAlreadyExistsCarriesTheExistingPublicId(): void
+    {
+        $client = $this->clientAnswering(409, [
+            'statusCode'    => 409,
+            'statusMessage' => 'A monitor for this target already exists for this customer.',
+            'data'          => ['code' => 'monitorAlreadyExists', 'existingId' => 7, 'existingPublicId' => 'web-existing'],
+        ]);
+
+        try {
+            $client->createWebsite('cust-uuid-1', 'acme.example', 'https://acme.example');
+            self::fail('Expected an ApiException');
+        } catch (\Modules_Uptimeify_Api_Exception_ApiException $e) {
+            self::assertSame('monitorAlreadyExists', $e->apiCode);
+            self::assertSame('web-existing', $e->apiData['existingPublicId']);
+        }
+    }
+
     private function assertPlainApiException(\Modules_Uptimeify_Api_Client $client, int $status): void
     {
         try {

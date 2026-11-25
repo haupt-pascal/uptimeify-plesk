@@ -153,7 +153,9 @@ class Modules_Uptimeify_Settings
 
     public static function getDefaultMonitoringType(): string
     {
-        return (string) pm_Settings::get(self::KEY_MONITORING_TYPE, 'combined');
+        // Up to 1.9.5 the settings form stored "http status" / "ssl check"; the API only
+        // knows http_status / ssl_check and answers 400 to the spelling with a space.
+        return str_replace(' ', '_', (string) pm_Settings::get(self::KEY_MONITORING_TYPE, 'combined'));
     }
 
     public static function setDefaultMonitoringType(string $type): void

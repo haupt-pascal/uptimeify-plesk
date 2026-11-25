@@ -36,6 +36,21 @@ class Modules_Uptimeify_Api_Client
     private const IP_LIMIT_CODE   = 'generic';
     private const IP_LIMIT_PREFIX = 'Active IP limit reached';
 
+    /**
+     * `data.code` values that get a clear, translated message (locale key `error.api.<code>`)
+     * instead of the API's bare "Forbidden".
+     */
+    private const EXPLAINED_CODES = [
+        'targetHostMonitorLimitReached',
+        'targetHostPlatformLimitReached',
+        'selfServiceQuotaReached',
+        'quotaRequired',
+        'billingSetupRequired',
+    ];
+
+    /** Upper bound for the page loop, in case a server ignores `page` and repeats page 1 forever. */
+    private const MAX_PAGES = 500;
+
     private ClientInterface $http;
 
     /**
@@ -95,11 +110,12 @@ class Modules_Uptimeify_Api_Client
      */
     public function listCustomers(?int $organizationId = null): array
     {
-        $options = [];
+        // `envelope=items` asks for the paged list form (default from 2027-01-18, max 100 per page).
+        $query = ['envelope' => 'items', 'perPage' => 100];
         if ($organizationId !== null && $organizationId > 0) {
-            $options['query'] = ['organizationId' => $organizationId];
+            $query['organizationId'] = $organizationId;
         }
-        return self::unwrapList($this->request('GET', '/api/customers', $options));
+        return $this->requestAllPages('/api/customers', $query);
     }
 
     /**
@@ -150,11 +166,13 @@ class Modules_Uptimeify_Api_Client
      */
     public function listWebsites(?string $customerPublicId = null): array
     {
-        $query = ['perPage' => 200];
+        // skipMetrics: the extension reads identity and health flags only, never uptime or
+        // response-time figures, so the API can skip those queries. 200 is the server's cap.
+        $query = ['perPage' => 200, 'skipMetrics' => 1];
         if ($customerPublicId !== null && $customerPublicId !== '') {
             $query['customerId'] = $customerPublicId;
         }
-        return self::unwrapList($this->request('GET', '/api/websites', ['query' => $query]));
+        return $this->requestAllPages('/api/websites', $query);
     }
 
     /**
@@ -258,6 +276,29 @@ class Modules_Uptimeify_Api_Client
     }
 
     /**
+     * Read a paged list to the end: request page after page until `total` rows are collected.
+     * A response without `total` (the old bare array) is complete after the first request.
+     *
+     * @param array<string, scalar> $query
+     * @return list<array<string, mixed>>
+     */
+    private function requestAllPages(string $path, array $query): array
+    {
+        $rows = [];
+        for ($page = 1; $page <= self::MAX_PAGES; $page++) {
+            $data     = $this->request('GET', $path, ['query' => $query + ['page' => $page]]);
+            $pageRows = self::unwrapList($data);
+            $rows     = array_merge($rows, $pageRows);
+
+            $total = $data['total'] ?? null;
+            if ($pageRows === [] || !is_int($total) || count($rows) >= $total) {
+                break;
+            }
+        }
+        return $rows;
+    }
+
+    /**
      * Perform a request and decode the JSON body, mapping HTTP errors to typed exceptions.
      *
      * @param array<string, mixed> $options
@@ -315,10 +356,22 @@ class Modules_Uptimeify_Api_Client
             throw new Modules_Uptimeify_Api_Exception_QuotaExceededException($message);
         }
 
-        throw new Modules_Uptimeify_Api_Exception_ApiException(
-            sprintf('uptimeify API error (HTTP %d): %s', $status, $message),
-            $status,
-        );
+        $data = is_array($decoded) && is_array($decoded['data'] ?? null) ? $decoded['data'] : [];
+        $code = is_string($data['code'] ?? null) ? $data['code'] : '';
+
+        if (in_array($code, self::EXPLAINED_CODES, true)) {
+            $text = pm_Locale::lmsg('error.api.' . $code, [
+                'host'  => is_scalar($data['host'] ?? null) ? (string) $data['host'] : '',
+                'limit' => is_scalar($data['limit'] ?? null) ? (string) $data['limit'] : '',
+            ]);
+        } else {
+            $text = sprintf('uptimeify API error (HTTP %d): %s', $status, $message);
+        }
+
+        $exception          = new Modules_Uptimeify_Api_Exception_ApiException($text, $status);
+        $exception->apiCode = $code;
+        $exception->apiData = $data;
+        throw $exception;
     }
 
     /**

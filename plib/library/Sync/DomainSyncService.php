@@ -72,6 +72,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
                 'excludedByFilter' => $this->isExcludedByFilter((int) $domain['clientId']),
                 'websitePublicId'  => $monitor['publicId'] ?? ($map['websitePublicId'] ?? null),
                 'status'           => $monitor['status'] ?? null,
+                'attention'        => $monitor !== null && $this->needsAttention($monitor),
                 'monitoringType'   => $monitor['monitoringType'] ?? null,
                 'customerName'     => $monitor['customerName'] ?? ($existing['name'] ?? null),
                 'customerPublicId' => $monitor['customerPublicId'] ?? ($existing['publicId'] ?? null),
@@ -234,8 +235,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
                 if ($created) {
                     $summary['customersCreated']++;
                 }
-                $this->createMonitor($row, $customerPublicId, $packageType);
-                $summary['websitesCreated']++;
+                $website = $this->createMonitor($row, $customerPublicId, $packageType);
+                $summary[empty($website['adopted']) ? 'websitesCreated' : 'skipped']++;
             } catch (Modules_Uptimeify_Api_Exception_QuotaExceededException) {
                 $summary['errors'][] = $row['domain'] . ': quota reached';
                 break;
@@ -266,13 +267,23 @@ class Modules_Uptimeify_Sync_DomainSyncService
      */
     private function createMonitor(array $row, string $customerPublicId, string $packageType): array
     {
-        $website = $this->api->createWebsite(
-            $customerPublicId,
-            'Plesk: ' . $row['domain'],
-            'https://' . $row['domain'],
-            Modules_Uptimeify_Settings::getDefaultMonitoringType(),
-            Modules_Uptimeify_Settings::getDefaultCheckInterval(),
-        );
+        try {
+            $website = $this->api->createWebsite(
+                $customerPublicId,
+                'Plesk: ' . $row['domain'],
+                'https://' . $row['domain'],
+                Modules_Uptimeify_Settings::getDefaultMonitoringType(),
+                Modules_Uptimeify_Settings::getDefaultCheckInterval(),
+            );
+        } catch (Modules_Uptimeify_Api_Exception_ApiException $e) {
+            // 409: this customer already has a monitor of this type for this URL. The API names
+            // it, so adopt it into the mapping instead of failing the domain on every sync.
+            $existing = $e->apiData['existingPublicId'] ?? null;
+            if ($e->apiCode !== 'monitorAlreadyExists' || !is_string($existing) || $existing === '') {
+                throw $e;
+            }
+            $website = ['publicId' => $existing, 'adopted' => true];
+        }
 
         $websitePublicId = (string) ($website['publicId'] ?? $website['id'] ?? '');
         Modules_Uptimeify_Settings::setMappingFor((string) $row['domain'], $websitePublicId, $customerPublicId, $packageType);
@@ -335,7 +346,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
         // --- Account-wide (whole uptimeify organization) ---
         $down = 0;
         foreach ($websites as $site) {
-            if ($this->needsAttention((string) ($site['status'] ?? ''))) {
+            if ($this->needsAttention($site)) {
                 $down++;
             }
         }
@@ -357,7 +368,7 @@ class Modules_Uptimeify_Sync_DomainSyncService
             if (!empty($row['monitored'])) {
                 $serverMonitored++;
                 $serverUrls[$this->normalizeUrl((string) ($row['url'] ?? ''))] = true;
-                if ($this->needsAttention((string) ($row['status'] ?? ''))) {
+                if (!empty($row['attention'])) {
                     $serverAttention++;
                 }
             }
@@ -368,9 +379,22 @@ class Modules_Uptimeify_Sync_DomainSyncService
         Modules_Uptimeify_Settings::setServerStatus($serverTotal, $serverMonitored, $serverAttention, $serverIncidents);
     }
 
-    private function needsAttention(string $status): bool
+    /**
+     * `status` is only the configured state (active | inactive | maintenance); whether a monitor
+     * is failing right now is in the list's health flags. A monitor in an active maintenance
+     * window is expected to fail and is not counted.
+     *
+     * @param array<string, mixed> $monitor One row of GET /api/websites.
+     */
+    private function needsAttention(array $monitor): bool
     {
-        return in_array(strtolower($status), ['down', 'inactive', 'paused', 'listed'], true);
+        if (in_array(strtolower((string) ($monitor['status'] ?? '')), ['inactive', 'paused'], true)) {
+            return true;
+        }
+        if (!empty($monitor['inMaintenance'])) {
+            return false;
+        }
+        return !empty($monitor['isDown']) || !empty($monitor['hasCritical']) || !empty($monitor['hasWarning']);
     }
 
     /**
@@ -399,7 +423,8 @@ class Modules_Uptimeify_Sync_DomainSyncService
     {
         $open = 0;
         foreach ($incidents as $incident) {
-            if (strtolower((string) ($incident['status'] ?? '')) !== 'open') {
+            // An acknowledged incident is still ongoing: only `resolved` closes it.
+            if (!in_array(strtolower((string) ($incident['status'] ?? '')), ['open', 'acknowledged'], true)) {
                 continue;
             }
             if ($urls !== null) {
